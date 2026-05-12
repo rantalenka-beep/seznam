@@ -407,13 +407,14 @@
 </div>
 
 <div class="bottom-bar" id="bottomBar-nakup">
-  <button class="btn" onclick="odznaci()">Počisti kljukice</button>
-  <button class="btn btn-accent" onclick="odstraniKupljene()">Odstrani kupljene</button>
+  <button class="btn" onclick="odznaci()">Počisti vse kljukice</button>
+  <button class="btn btn-accent" onclick="odstraniKupljene()">Kupljeno ✓ počisti</button>
 </div>
 
 <div class="bottom-bar" id="bottomBar-kosarica" style="display:none;">
   <button class="btn" onclick="odznaci()">Počisti kljukice</button>
-  <button class="btn btn-accent" onclick="odstraniKupljene()">Odstrani kupljene</button>
+  <button class="btn" onclick="deliSeznam()" style="color:var(--accent);border-color:rgba(61,122,79,0.3);">📤 Deli</button>
+  <button class="btn btn-accent" onclick="odstraniKupljene()">✓ Počisti</button>
 </div>
 
 <div class="bottom-bar" id="bottomBar-seznam" style="display:none;">
@@ -529,6 +530,26 @@ function renderKosarica() {
 
     container.appendChild(sec);
   });
+}
+
+function deliSeznam() {
+  const checked = items.filter(i=>i.checked);
+  if (!checked.length) { showToast('Ni označenih artiklov'); return; }
+
+  let tekst = '🛒 Nakupni seznam:\n\n';
+  CATEGORIES.forEach(cat => {
+    const catItems = checked.filter(i=>i.cat===cat);
+    if (!catItems.length) return;
+    tekst += cat + ':\n';
+    catItems.forEach(i => tekst += '  • ' + i.name + '\n');
+    tekst += '\n';
+  });
+
+  if (navigator.share) {
+    navigator.share({ title: 'Nakupni seznam', text: tekst });
+  } else {
+    navigator.clipboard.writeText(tekst).then(() => showToast('Seznam kopiran v odložišče!'));
+  }
 }
 
 function odznaciItem(idx) {
@@ -651,10 +672,10 @@ function odznaci() {
 function odstraniKupljene() {
   const n = items.filter(i=>i.checked).length;
   if (!n) { showToast('Ni označenih artiklov'); return; }
-  items = items.filter(i=>!i.checked);
+  items.forEach(i => i.checked = false);
   save();
   renderNakup();
-  showToast(`Odstranjeno: ${n} artiklov`);
+  showToast(`Počiščeno ${n} kljukic`);
 }
 
 function izbrisiVse() {
