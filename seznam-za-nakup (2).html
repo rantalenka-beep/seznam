@@ -187,9 +187,9 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- PODROČJA -->
     <div id="sub-podroca" style="display:none;">
-      <div style="margin-bottom:12px;">
-        <input type="text" id="newCatInput" placeholder="Novo področje (npr. Etnična živila)..." onkeydown="if(event.key==='Enter')addUserCat()" />
-        <button class="btn btn-accent" onclick="addUserCat()" style="width:100%;">+ Dodaj področje</button>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <input type="text" id="newCatInput" placeholder="Novo področje (npr. Oreščki)..." onkeydown="if(event.key==='Enter')addUserCat()" style="margin-bottom:0;flex:1;"/>
+        <button onclick="addUserCat()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
       </div>
       <div class="cat-title">Vsa področja</div>
       <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
@@ -198,13 +198,8 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- ARTIKLI -->
     <div id="sub-artikli" style="display:none;">
-      <div style="margin-bottom:12px;">
-        <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
-        <div style="display:flex;gap:8px;">
-          <select id="newItemCat" style="flex:1;"></select>
-          <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
-        </div>
-      </div>
+      <div class="cat-title" style="margin-bottom:8px;">Izberi področje:</div>
+      <div id="artCatPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
       <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
       <div id="seznamList"></div>
       <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
@@ -212,9 +207,9 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- TRGOVINE -->
     <div id="sub-trgovine" style="display:none;">
-      <div style="margin-bottom:12px;">
-        <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" />
-        <button class="btn btn-accent" onclick="addUserShop()" style="width:100%;">+ Dodaj trgovino</button>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" style="margin-bottom:0;flex:1;"/>
+        <button onclick="addUserShop()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
       </div>
       <div class="cat-title">Vse trgovine</div>
       <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
@@ -850,61 +845,92 @@ function setupShopDrag(el){
 }
 
 function renderSeznam(){
-  // Napolni select s kategorijami
-  const sel=document.getElementById('newItemCat');
-  if(sel){
-    const cur=sel.value;
-    sel.innerHTML='';
-    const catEmoji={'Sadje':'🍎','Zelenjava':'🥦','Jajca in mlečni':'🥛','Pekarna':'🍞','Suha živila':'🫘','Zamrznjeno':'❄️','Začimbe in omake':'🧂','Dodatki za peko':'🎂','Pijače':'🧃','Sladkarije':'🍫','Osebna nega':'🧴','Čistila':'🧹','Ostalo':'📦'};
+  // Napolni category picker
+  const picker=document.getElementById('artCatPicker');
+  const catEmoji={'Sadje':'🍎','Zelenjava':'🥦','Jajca in mlečni':'🥛','Pekarna':'🍞','Suha živila':'🫘','Zamrznjeno':'❄️','Začimbe in omake':'🧂','Dodatki za peko':'🎂','Pijače':'🧃','Sladkarije':'🍫','Osebna nega':'🧴','Čistila':'🧹','Ostalo':'📦'};
+  if(picker){
+    picker.innerHTML='';
     getCategories().forEach(cat=>{
-      const opt=document.createElement('option');
-      opt.value=cat;
-      opt.textContent=(catEmoji[cat]||'📌')+' '+cat;
-      if(cat===cur)opt.selected=true;
-      sel.appendChild(opt);
+      const btn=document.createElement('button');
+      const isActive=window._activeCat===cat;
+      btn.style.cssText=`padding:5px 10px;border-radius:20px;border:1px solid ${isActive?'var(--accent)':'var(--border2)'};background:${isActive?'var(--accent)':'var(--surface)'};color:${isActive?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;`;
+      btn.textContent=(catEmoji[cat]||'📌')+' '+cat;
+      btn.onclick=()=>{window._activeCat=cat;renderSeznam();};
+      picker.appendChild(btn);
     });
   }
-  renderAllCats();
+
   const container=document.getElementById('seznamList');
   const empty=document.getElementById('seznamEmpty');
   container.innerHTML='';
   if(!items.length){empty.style.display='block';return;}
   empty.style.display='none';
   document.getElementById('headerStats').textContent=`${items.length} artiklov`;
+
   getCategories().forEach(cat=>{
     const catItems=items.map((item,idx)=>({item,idx})).filter(({item})=>item.cat===cat);
-    if(!catItems.length)return;
+    // Show all cats or only active
+    if(!window._activeCat && !catItems.length) return;
+    if(window._activeCat && cat!==window._activeCat) return;
+    if(!window._activeCat && !catItems.length) return;
+
     const hdr=document.createElement('div');
     hdr.className='cat-title';hdr.textContent=cat;
     container.appendChild(hdr);
+
+    // Inline add input below category title
+    const catId=cat.replace(/ /g,'_');
+    const addRow=document.createElement('div');
+    addRow.style.cssText='display:flex;gap:6px;margin-bottom:8px;';
+    const inp=document.createElement('input');
+    inp.type='text';
+    inp.id='newItemInput-'+catId;
+    inp.placeholder='Nov artikel v '+cat+'...';
+    inp.style.cssText='margin-bottom:0;font-size:14px;flex:1;';
+    inp.onkeydown=(e)=>{if(e.key==='Enter')addItemToCat(cat);};
+    const plusBtn=document.createElement('button');
+    plusBtn.textContent='+';
+    plusBtn.style.cssText='padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;';
+    plusBtn.onclick=()=>addItemToCat(cat);
+    addRow.appendChild(inp);
+    addRow.appendChild(plusBtn);
+    container.appendChild(addRow);
+
     catItems.forEach(({item,idx})=>{
+      const card=document.createElement('div');
+      card.className='item-card';
       const row=document.createElement('div');
       row.className='seznam-item';
+      row.style.cssText='border:none;border-radius:0;margin-bottom:0;';
       row.draggable=true;row.dataset.idx=idx;
       row.innerHTML=`
         <span class="drag-handle">≡</span>
         <div class="seznam-item-name">${escHtml(item.name)}</div>
-        <button onclick="toggleCatPicker(${idx})" style="border:none;background:transparent;color:var(--text3);font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;border:0.5px solid var(--border2);" title="Spremeni kategorijo">📂</button>
+        <button onclick="toggleCatPicker(${idx})" style="border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;">📂</button>
         <button class="del-btn" onclick="deleteItem(${idx})">×</button>
       `;
-      // Cat picker row
-      const picker=document.createElement('div');
-      picker.id='catpicker-'+idx;
-      picker.style.cssText='display:none;padding:8px 12px 10px;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border);';
+      const catPickerDiv=document.createElement('div');
+      catPickerDiv.id='catpicker-'+idx;
+      catPickerDiv.style.cssText='display:none;padding:8px 12px 10px;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border);';
       getCategories().forEach(c=>{
         const btn=document.createElement('button');
         btn.textContent=c;
         btn.style.cssText=`padding:4px 9px;border-radius:20px;border:1px solid var(--border2);background:${c===item.cat?'var(--accent)':'transparent'};color:${c===item.cat?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;`;
         btn.onclick=()=>{items[idx].cat=c;save();renderSeznam();};
-        picker.appendChild(btn);
+        catPickerDiv.appendChild(btn);
       });
-      const card=document.createElement('div');
-      card.className='item-card';
       card.appendChild(row);
-      card.appendChild(picker);
+      card.appendChild(catPickerDiv);
       setupDrag(row);
       container.appendChild(card);
     });
+
+    if(!catItems.length){
+      const empty2=document.createElement('div');
+      empty2.style.cssText='font-size:13px;color:var(--text3);padding:8px 4px;';
+      empty2.textContent='Ni artiklov v tem področju.';
+      container.appendChild(empty2);
+    }
   });
 }
 
@@ -973,9 +999,10 @@ function setupDrag(el){
   });
 }
 
-function addItem(){
-  const inp=document.getElementById('newItemInput');
-  const cat=document.getElementById('newItemCat').value;
+function addItemToCat(cat){
+  const catId=cat.replace(/ /g,'_');
+  const inp=document.getElementById('newItemInput-'+catId);
+  if(!inp)return;
   const name=inp.value.trim();
   if(!name)return;
   if(items.some(i=>i.name.toLowerCase()===name.toLowerCase())){showToast('Ta artikel že obstaja');return;}
@@ -984,6 +1011,11 @@ function addItem(){
   if(firstInCat>=0)items.splice(firstInCat,0,newItem);else items.unshift(newItem);
   inp.value='';save();renderSeznam();
   showToast('Dodano: '+name);
+}
+
+function addItem(){
+  const cat=window._activeCat||getCategories()[0];
+  addItemToCat(cat);
 }
 
 function deleteItem(idx){
