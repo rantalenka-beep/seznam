@@ -655,15 +655,22 @@ function addShopExtra(shopId){
 
 function addUserCat(){
   const inp=document.getElementById('newCatInput');
+  if(!inp)return;
   const name=inp.value.trim();
   if(!name)return;
   if(getCategories().includes(name)){showToast('Ta kategorija že obstaja');return;}
-  userCats.push(name);saveUserCats();inp.value='';
-  renderAllCats();showToast('Področje dodano: '+name);
+  userCats.push(name);
+  saveUserCats();
+  // Posodobi vrstni red
+  try{localStorage.removeItem('nakup-cat-order');}catch(e){}
+  inp.value='';
+  renderAllCats();
+  showToast('Področje dodano: '+name);
 }
 
 function addUserShop(){
   const inp=document.getElementById('newShopInput');
+  if(!inp)return;
   const name=inp.value.trim();
   if(!name)return;
   if(getShops().find(s=>s.name.toLowerCase()===name.toLowerCase())){showToast('Ta trgovina že obstaja');return;}
@@ -671,8 +678,11 @@ function addUserShop(){
   const colors=['#7b2d8b','#1a6b4a','#b35c00','#005b8e','#444'];
   const color=colors[userShops.length%colors.length];
   userShops.push({id,name,color});
-  saveUserShops();inp.value='';
-  renderAllShops();showToast('Trgovina dodana: '+name);
+  saveUserShops();
+  try{localStorage.removeItem('nakup-shop-order');}catch(e){}
+  inp.value='';
+  renderAllShops();
+  showToast('Trgovina dodana: '+name);
 }
 
 function showSubtab(t){
