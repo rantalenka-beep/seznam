@@ -90,7 +90,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   </div>
   <div class="tab-bar">
     <button class="tab active" onclick="showView('nakup')" id="tab-nakup">📋 Seznam</button>
-    <button class="tab" onclick="showView('kosarica')" id="tab-kosarica">🛒 Košarica</button>
+    <button class="tab" onclick="showView('kosarica')" id="tab-kosarica">🛒 Listek</button>
     <button class="tab" onclick="showView('shranjeni')" id="tab-shranjeni">📂 Shranjeni</button>
     <button class="tab" onclick="showView('seznam')" id="tab-seznam">✏️ Urejanje</button>
   </div>
@@ -133,7 +133,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div id="kosaricaList"></div>
   <div id="kosaricaEmpty" class="empty-state" style="display:none;">
     <div class="icon">🧺</div>
-    <p>Košarica je prazna.</p>
+    <p>Nakupovalni listek je prazen.</p>
   </div>
 </div>
 
@@ -159,7 +159,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div id="shranjeniList"></div>
   <div id="shranjeniEmpty" class="empty-state">
     <div class="icon">📂</div>
-    <p>Še ni shranjenih seznamov.<br>V košarici klikni <strong>💾 Shrani</strong>.</p>
+    <p>Še ni shranjenih seznamov.<br>V listku klikni <strong>💾 Shrani</strong>.</p>
   </div>
 </div>
 
@@ -221,7 +221,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
 <div class="bottom-bar active" id="bottomBar-nakup">
   <button class="btn" onclick="potrdiOdznaci()" style="color:var(--text2);">Počisti</button>
-  <button class="btn btn-accent" onclick="showView('kosarica')">🛒 Košarica</button>
+  <button class="btn btn-accent" onclick="showView('kosarica')">🛒 Listek</button>
 </div>
 <div class="bottom-bar" id="bottomBar-kosarica">
   <button class="btn" onclick="shraniSeznam()" style="color:#0050a0;border-color:rgba(0,80,160,0.3);">💾 Shrani</button>
@@ -521,7 +521,7 @@ function renderKosarica(){
     empty.style.display='none';
   }
 
-  document.getElementById('headerStats').textContent=checked.length?`${checked.length} v košarici`:'';
+  document.getElementById('headerStats').textContent=checked.length?`${checked.length} v listku`:'';
 
   if(checked.length){
     const allHdr=document.createElement('div');
