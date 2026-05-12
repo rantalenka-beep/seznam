@@ -4,122 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Nakup">
-<title>Seznam za nakup</title>
+<title>Nakupovalni seznam</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f7f5f0;
-    --surface: #ffffff;
-    --text: #1a1814;
-    --text2: #6b6560;
-    --text3: #a09890;
-    --accent: #3d7a4f;
-    --accent-light: #e8f2ec;
-    --accent-dark: #2a5636;
-    --border: rgba(0,0,0,0.08);
-    --border2: rgba(0,0,0,0.14);
-    --danger: #c0392b;
-    --danger-light: #fdf0ee;
-    --radius: 14px;
-    --radius-sm: 9px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 90px; }
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 20px 14px; position: sticky; top: 0; z-index: 100; }
-  .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
-  .app-title { font-family: 'DM Serif Display', serif; font-size: 26px; letter-spacing: -0.3px; }
-  .header-stats { font-size: 13px; color: var(--text3); }
-  .tab-bar { display: flex; gap: 6px; }
-  .tab { flex: 1; padding: 9px 8px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all 0.15s; text-align: center; }
-  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .view { padding: 16px 16px 0; display: none; }
-  .view.active { display: block; }
-  .mode-banner { background: var(--accent-light); border: 1px solid rgba(61,122,79,0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--accent-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .cat-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); padding: 0 4px 8px; margin-top: 8px; }
-  .item-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; overflow: hidden; }
-  .item-row { display: flex; align-items: center; padding: 13px 14px; gap: 12px; user-select: none; }
-  .item-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: var(--surface); cursor: pointer; }
-  .item-check svg { display: none; }
-  .item-row.checked .item-check { background: var(--accent); border-color: var(--accent); }
-  .item-row.checked .item-check svg { display: block; }
-  .item-name { flex: 1; font-size: 15px; color: var(--text); cursor: pointer; }
-  .item-row.checked .item-name { text-decoration: line-through; color: var(--text3); }
-  .drag-handle { color: var(--text3); cursor: grab; padding: 0 4px; font-size: 20px; line-height: 1; touch-action: none; flex-shrink: 0; }
-  input[type="text"] { width: 100%; padding: 12px 14px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 15px; background: var(--surface); color: var(--text); outline: none; -webkit-appearance: none; margin-bottom: 8px; }
-  input[type="text"]:focus { border-color: var(--accent); }
-  select { padding: 12px 10px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; background: var(--surface); color: var(--text); outline: none; -webkit-appearance: none; appearance: none; flex: 1; }
-  .btn { padding: 12px 16px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-  .btn:active { transform: scale(0.97); }
-  .btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn-share { color: var(--accent); border-color: rgba(61,122,79,0.3); }
-  .btn-danger { color: var(--danger); border-color: rgba(192,57,43,0.25); }
-  .seznam-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; display: flex; align-items: center; padding: 12px 14px; gap: 10px; transition: all 0.15s; }
-  .seznam-item.dragging { opacity: 0.4; border: 2px dashed var(--accent); }
-  .seznam-item.drag-over { border: 2px solid var(--accent); background: var(--accent-light); }
-  .seznam-item-name { flex: 1; font-size: 15px; color: var(--text); }
-  .del-btn { padding: 4px 8px; background: transparent; border: none; color: var(--text3); cursor: pointer; font-size: 20px; line-height: 1; border-radius: 6px; }
-  .bottom-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; display: none; gap: 8px; }
-  .bottom-bar.active { display: flex; }
-  .bottom-bar .btn { flex: 1; text-align: center; font-size: 13px; padding: 10px 6px; }
-  .empty-state { text-align: center; padding: 48px 20px; color: var(--text3); }
-  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 15px; line-height: 1.5; }
-  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 14px; opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 200; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+:root {
+  --bg:#f7f5f0;--surface:#fff;--text:#1a1814;--text2:#6b6560;--text3:#a09890;
+  --accent:#3d7a4f;--accent-light:#e8f2ec;--accent-dark:#2a5636;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --danger:#c0392b;--radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:90px;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 10px;position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.app-title{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-0.3px;}
+.header-stats{font-size:13px;color:var(--text3);}
+.tab-bar{display:flex;gap:4px;}
+.tab{flex:1;padding:7px 4px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:transparent;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.view{padding:12px 14px 0;display:none;}
+.view.active{display:block;}
+.mode-banner{background:var(--accent-light);border:1px solid rgba(61,122,79,0.2);border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;color:var(--accent-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.cat-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:0 4px 7px;margin-top:8px;}
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;overflow:hidden;}
+.item-row{display:flex;align-items:center;padding:11px 12px;gap:10px;user-select:none;}
+.item-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:var(--surface);cursor:pointer;}
+.item-check svg{display:none;}
+.item-row.checked .item-check{background:var(--accent);border-color:var(--accent);}
+.item-row.checked .item-check svg{display:block;}
+.item-name{flex:1;font-size:15px;color:var(--text);cursor:pointer;}
+.item-row.checked .item-name{text-decoration:line-through;color:var(--text3);}
+.qty-ctrl{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.qty-btn{width:22px;height:22px;border-radius:50%;border:1px solid var(--border2);background:var(--bg);font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);}
+.qty-num{font-size:13px;min-width:16px;text-align:center;color:var(--text2);}
+.shop-picker{padding:0 12px 10px;display:none;}
+.shop-picker.open{display:block;}
+.shop-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.shop-btn{padding:4px 9px;border-radius:20px;border:1.5px solid;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;background:transparent;font-family:'DM Sans',sans-serif;}
+.shop-btn.selected{color:#fff!important;}
+.drag-handle{color:var(--text3);cursor:grab;padding:0 3px;font-size:20px;line-height:1;touch-action:none;flex-shrink:0;}
+input[type="text"]{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;background:var(--surface);color:var(--text);outline:none;-webkit-appearance:none;margin-bottom:8px;}
+input[type="text"]:focus{border-color:var(--accent);}
+select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;background:var(--surface);color:var(--text);outline:none;-webkit-appearance:none;appearance:none;flex:1;}
+.btn{padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-share{color:var(--accent);border-color:rgba(61,122,79,0.3);}
+.seznam-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;display:flex;align-items:center;padding:10px 12px;gap:10px;transition:all 0.15s;}
+.seznam-item.dragging{opacity:0.4;border:2px dashed var(--accent);}
+.seznam-item.drag-over{border:2px solid var(--accent);background:var(--accent-light);}
+.seznam-item-name{flex:1;font-size:15px;color:var(--text);}
+.del-btn{padding:4px 7px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;}
+.bottom-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px;display:none;gap:6px;}
+.bottom-bar.active{display:flex;}
+.bottom-bar .btn{flex:1;text-align:center;font-size:12px;padding:9px 4px;}
+.empty-state{text-align:center;padding:36px 20px;color:var(--text3);}
+.empty-state .icon{font-size:34px;margin-bottom:10px;}
+.empty-state p{font-size:14px;line-height:1.5;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;z-index:200;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.shop-section-hdr{display:flex;align-items:center;gap:8px;margin:16px 0 7px;}
+.shop-section-bar{width:4px;height:20px;border-radius:2px;flex-shrink:0;}
+.shop-section-name{font-size:14px;font-weight:600;}
+.shop-item-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;font-size:14px;}
+.sticky-bar{position:sticky;top:var(--header-h,88px);z-index:90;background:var(--bg);padding:8px 14px 6px;margin:0 -14px;border-bottom:1px solid var(--border);}
+
+.search-box{position:relative;margin-bottom:6px;}
+.search-box input{margin-bottom:0;padding-left:36px;}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px;}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0;}
+.freq-section{margin-bottom:14px;}
+.freq-title{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding:0 4px 7px;}
+.freq-pills{display:flex;gap:5px;flex-wrap:wrap;}
+.freq-pill{padding:5px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);font-size:12px;color:var(--text2);cursor:pointer;}
+.freq-pill:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);}
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-top">
-    <div class="app-title">Nakupni seznam</div>
+    <div class="app-title">Nakupovalni seznam</div>
     <div class="header-stats" id="headerStats"></div>
   </div>
   <div class="tab-bar">
-    <button class="tab active" onclick="showView('nakup')" id="tab-nakup">🛒 Nakup</button>
-    <button class="tab" onclick="showView('kosarica')" id="tab-kosarica">✅ Izbrano</button>
-    <button class="tab" onclick="showView('seznam')" id="tab-seznam">📋 Urejanje</button>
+    <button class="tab active" onclick="showView('nakup')" id="tab-nakup">📋 Seznam</button>
+    <button class="tab" onclick="showView('kosarica')" id="tab-kosarica">🛒 Košarica</button>
+    <button class="tab" onclick="showView('shranjeni')" id="tab-shranjeni">📂 Shranjeni</button>
+    <button class="tab" onclick="showView('seznam')" id="tab-seznam">✏️ Urejanje</button>
   </div>
 </header>
 
+<!-- SEZNAM -->
 <div id="view-nakup" class="view active">
-  <div class="mode-banner">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    Označi kar že imaš v košarici
+  <div class="sticky-bar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Išči artikel..." oninput="renderNakup()" style="padding-left:36px;" />
+      <button class="search-clear" id="searchClear" onclick="document.getElementById('searchInput').value='';renderNakup();" style="display:none;">×</button>
+    </div>
+    <div id="catBar" style="display:flex;gap:5px;flex-wrap:wrap;padding-bottom:2px;"></div>
+  </div>
+  <div style="height:8px;"></div>
+  <div id="freqSection" class="freq-section" style="display:none;">
+    <div class="freq-title">🔥 Pogosto kupuješ</div>
+    <div class="freq-pills" id="freqPills"></div>
   </div>
   <div id="nakupList"></div>
   <div id="nakupEmpty" class="empty-state" style="display:none;">
     <div class="icon">🌿</div>
-    <p>Seznam je prazen.<br>Dodaj artikle v zavihku <strong>Urejanje</strong>.</p>
+    <p>Ni zadetkov.<br>Poskusi drugačno iskanje.</p>
   </div>
 </div>
 
+<div id="odznaciWarning" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:452px;background:#fff8e6;border:1px solid rgba(180,130,0,0.3);border-radius:var(--radius-sm);padding:10px 14px;z-index:150;gap:10px;align-items:center;">
+  <span style="flex:1;font-size:13px;color:#7a5800;">Izbrani artikli bodo odznačeni.</span>
+  <button onclick="odznaci();document.getElementById('odznaciWarning').style.display='none';" style="padding:6px 12px;background:#3d7a4f;color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;">Potrdi</button>
+  <button onclick="document.getElementById('odznaciWarning').style.display='none';" style="padding:6px 10px;background:transparent;border:none;color:var(--text3);font-size:18px;cursor:pointer;">×</button>
+</div>
+
+<!-- KOŠARICA -->
 <div id="view-kosarica" class="view">
-  <div class="mode-banner" style="background:#fff8e6; border-color:rgba(180,130,0,0.2); color:#7a5800;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-    Označeni artikli — že v košarici
+  <div class="mode-banner" style="background:#fff8e6;border-color:rgba(180,130,0,0.2);color:#7a5800;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    Izbrani artikli za nakup
   </div>
   <div id="kosaricaList"></div>
   <div id="kosaricaEmpty" class="empty-state" style="display:none;">
     <div class="icon">🧺</div>
-    <p>Košarica je prazna.<br>Označi artikle v zavihku <strong>Nakup</strong>.</p>
-  </div>
-  <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
-    <p style="font-size:12px; color:var(--text3); margin-bottom:8px; padding-left:4px;">Dodaj artikel ki ni na seznamu:</p>
-    <div style="display:flex; gap:8px;">
-      <input type="text" id="extraItemInput" placeholder="Npr. posebna čokolada..." onkeydown="if(event.key==='Enter')addExtraItem()" style="margin-bottom:0;" />
-      <button class="btn btn-accent" onclick="addExtraItem()" style="white-space:nowrap;">+ Dodaj</button>
-    </div>
-    <div id="extraList" style="margin-top:10px;"></div>
+    <p>Košarica je prazna.</p>
   </div>
 </div>
 
+<div id="shraniDialog" style="display:none;flex-direction:column;gap:8px;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:452px;padding:12px;background:#fff8e6;border:1px solid rgba(180,130,0,0.3);border-radius:var(--radius);z-index:150;">
+  <p style="font-size:13px;color:#7a5800;margin:0;">⚠️ Seznam se ne bo shranjen. Želiš ga shraniti pred brisanjem?</p>
+  <div style="display:flex;gap:8px;">
+    <button onclick="zapriBrezShranjevanja()" style="flex:1;padding:9px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text2);">Počisti brez shranjevanja</button>
+    <button onclick="odpriShrani()" style="flex:1;padding:9px;background:#0050a0;color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:500;">Shrani najprej</button>
+  </div>
+</div>
+<div id="shraniImeDialog" style="display:none;gap:8px;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:452px;padding:11px;background:var(--surface);border:1px solid #0050a0;border-radius:var(--radius);align-items:center;z-index:150;">
+  <input type="text" id="shraniIme" placeholder="Ime seznama..." onkeydown="if(event.key==='Enter')potrdiShrani()" style="flex:1;margin-bottom:0;font-size:14px;"/>
+  <button onclick="potrdiShrani()" style="padding:9px 13px;background:#0050a0;color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;">Shrani</button>
+  <button onclick="document.getElementById('shraniImeDialog').style.display='none';document.getElementById('shraniDialog').style.display='flex';" style="padding:9px;background:transparent;border:none;color:var(--text3);font-size:13px;cursor:pointer;text-decoration:underline;">Nazaj</button>
+</div>
+
+<!-- SHRANJENI -->
+<div id="view-shranjeni" class="view">
+  <div class="mode-banner" style="background:#f0f4ff;border-color:rgba(0,80,160,0.2);color:#003580;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    Shranjeni nakupovalni seznami
+  </div>
+  <div id="shranjeniList"></div>
+  <div id="shranjeniEmpty" class="empty-state">
+    <div class="icon">📂</div>
+    <p>Še ni shranjenih seznamov.<br>V košarici klikni <strong>💾 Shrani</strong>.</p>
+  </div>
+</div>
+
+<!-- UREJANJE -->
 <div id="view-seznam" class="view">
-  <div style="margin-bottom:16px;">
-    <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()" />
-    <div style="display:flex; gap:8px;">
+  <div style="margin-bottom:12px;">
+    <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
+    <div style="display:flex;gap:8px;">
       <select id="newItemCat">
         <option value="Sadje">🍎 Sadje</option>
         <option value="Zelenjava">🥦 Zelenjava</option>
@@ -128,349 +176,640 @@
         <option value="Suha živila">🫘 Suha živila</option>
         <option value="Zamrznjeno">❄️ Zamrznjeno</option>
         <option value="Začimbe in omake">🧂 Začimbe in omake</option>
+        <option value="Dodatki za peko">🎂 Dodatki za peko</option>
         <option value="Pijače">🧃 Pijače</option>
         <option value="Sladkarije">🍫 Sladkarije</option>
         <option value="Osebna nega">🧴 Osebna nega</option>
         <option value="Čistila">🧹 Čistila</option>
-        <option value="Dodatki za peko">🎂 Dodatki za peko</option>
         <option value="Ostalo">📦 Ostalo</option>
       </select>
       <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
     </div>
   </div>
-  <p style="font-size:12px; color:var(--text3); margin-bottom:12px; padding-left:4px;">Drži ≡ in povleci za premikanje artiklov</p>
+  <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
   <div id="seznamList"></div>
-  <div id="seznamEmpty" class="empty-state" style="display:none;">
-    <div class="icon">✏️</div>
-    <p>Še ni artiklov.</p>
-  </div>
+  <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
 </div>
 
 <div class="bottom-bar active" id="bottomBar-nakup">
-  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti kljukice</button>
+  <button class="btn" onclick="showView('kosarica')">🛒 Košarica</button>
+  <button class="btn btn-accent" onclick="potrdiOdznaci()">Počisti</button>
 </div>
 <div class="bottom-bar" id="bottomBar-kosarica">
-  <button class="btn btn-share" onclick="deliSeznam()">📤 Deli seznam</button>
-  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti kljukice</button>
+  <button class="btn btn-share" onclick="deliSeznam('vse')">📤 Deli</button>
+  <button class="btn" onclick="shraniSeznam()" style="color:#0050a0;border-color:rgba(0,80,160,0.3);">💾 Shrani</button>
+  <button class="btn btn-accent" onclick="novListek()">✓ Počisti</button>
+</div>
+<div class="bottom-bar" id="bottomBar-shranjeni">
+  <button class="btn btn-accent" onclick="showView('nakup')">Na seznam →</button>
 </div>
 <div class="bottom-bar" id="bottomBar-seznam">
-  <button class="btn btn-danger" onclick="izbrisiVse()">Izbriši vse</button>
   <button class="btn btn-accent" onclick="showView('nakup')">Na nakup →</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const CATEGORIES = ["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Suha živila","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije","Osebna nega","Čistila","Ostalo"];
-
-const DEFAULT_ITEMS = [
-  {cat:"Sadje", items:["Banane","Jabolka","Pomaranče","Limona","Limeta","Jagode","Maline","Borovnice","Grozdje","Hruške","Breskve","Slive","Kivi","Mango","Ananas","Melona","Lubenica","Avokado","Datlji","Rozine"]},
-  {cat:"Zelenjava", items:["Paradižnik","Kumare","Paprika","Čebula","Česen","Solata","Špinača","Rukola","Brokoli","Cvetača","Korenje","Tikvice","Buča","Beluši","Por","Koleraba","Zelje","Rdeča pesa","Redkvice","Zelena","Krompir","Sladki krompir","Gobe","Artičoke","Feferoni","Jajčevci"]},
-  {cat:"Jajca in mlečni", items:["Jajca","Mleko","Rastlinsko mleko","Jogurt","Grški jogurt","Sir (trdi)","Sir (mehki)","Mozzarella","Feta sir","Maslo","Skuta","Kisla smetana","Sladka smetana","Kremni sir","Parmezan"]},
-  {cat:"Pekarna", items:["Kruh","Žemlje","Polnozrnat kruh","Baguette","Pita kruh","Tortilije","Prepečenec","Ovseni kosmiči","Muesli","Granola"]},
-  {cat:"Suha živila", items:["Testenine","Špageti","Riž","Rjavi riž","Kvinoja","Ječmen","Proso","Leča (rdeča)","Leča (zelena)","Čičerika","Fižol (beli)","Fižol (rdeči)","Konzerva paradižnikov","Kokosovo mleko","Olivno olje","Sončnično olje","Kis","Sojina omaka","Tahini","Arašidovo maslo","Med","Javorjev sirup","Orehi","Mandlji","Indijski oreščki","Lešniki","Bučna semena","Sezam","Lanena semena","Chia semena","Čokolada (temna)","Kakav"]},
-  {cat:"Zamrznjeno", items:["Zamrznjen grah","Zamrznjena koruza","Zamrznjena špinača","Zamrznjen brokoli","Zamrznjene jagode","Tofu","Edamame"]},
-  {cat:"Začimbe in omake", items:["Sol","Poper","Kurkuma","Kumina","Koriander","Paprika v prahu","Cimet","Muškatni orešček","Lovorov list","Timijan","Rožmarin","Bazilika","Origano","Curry v prahu","Čili v prahu","Ingver (svež)","Gorčica","Kečap","Tabasco","Jušna osnova"]},
-  {cat:"Dodatki za peko", items:["Moka (bela)","Moka (polnozrnata)","Moka (pirina)","Sladkor","Rjavi sladkor","Sladkor v prahu","Vanilijev sladkor","Pecilni prašek","Soda bikarbona","Instant kvas","Suhi kvas","Jedilni škrob","Mandljeva moka","Kakav v prahu","Čokolada za kuhanje","Čokoladne kapljice","Jedilna soda","Tartarov ekstrakt","Cimet","Aroma vanilije","Rum za peko","Limona (lupina)","Pomarančna lupina","Orehi za peko","Mandlji (blanširani)","Rozine za peko","Brusnice (posušene)","Kokosova moka","Kokosovi kosmiči","Glazura","Barvila za hrano","Sladkorna dekoracija"]},
-  {cat:"Pijače", items:["Voda","Mineralna voda","Sok (pomaranča)","Sok (jabolko)","Zeliščni čaj","Zeleni čaj","Kava","Kakav v prahu","Vino (rdeče)","Vino (belo)","Pivo"]},
-  {cat:"Sladkarije", items:["Temna čokolada","Sladoled","Piškoti"]},
-  {cat:"Osebna nega", items:["Šampon","Balzam za lase","Gel za tuširanje","Milo","Zobna pasta","Zobna ščetka","Nitka za zobe","Dezodorant","Krema za obraz","Krema za telo","Tamponi","Vložki"]},
-  {cat:"Čistila", items:["Detergent za pomivanje","Detergent za pranje","Mehčalec","Čistilo za kopalnico","Čistilo za WC","Čistilo za kuhinjske površine","Toaletni papir","Papirnate brisačke","Kuhinjske krpe","Aluminijasta folija","Pečica papir","Vrečke za smeti","Gobica"]},
-  {cat:"Ostalo", items:["Baterije","Sveče","Vžigalice","Žarnice","Vrečke za zamrzovalnik"]}
+const SHOPS=[
+  {id:'spar',name:'Špar',color:'#00813a'},
+  {id:'lidl',name:'Lidl',color:'#0050a0'},
+  {id:'hofer',name:'Hofer',color:'#c8102e'},
+  {id:'merkator',name:'Merkator',color:'#e31e24'},
+  {id:'dm',name:'dm',color:'#cc0000'},
+  {id:'eurospin',name:'Eurospin',color:'#003da5'},
+  {id:'tus',name:'Tuš',color:'#e87722'},
+  {id:'muller',name:'Müller',color:'#d4002a'},
 ];
 
-function loadItems() {
-  try {
-    const saved = localStorage.getItem('nakup-v3');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  const items = [];
-  DEFAULT_ITEMS.forEach(g => g.items.forEach(name => items.push({name, cat:g.cat, checked:false})));
-  return items;
+const CATEGORIES=["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Suha živila","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije","Osebna nega","Čistila","Ostalo"];
+
+const DEFAULT_ITEMS=[
+  {cat:"Sadje",items:["Banane","Jabolka","Pomaranče","Limone","Limete","Jagode","Maline","Borovnice","Grozdje","Hruške","Breskve","Slive","Kivi","Mango","Ananas","Melona","Lubenica","Avokado","Datlji","Rozine"]},
+  {cat:"Zelenjava",items:["Paradižnik","Kumare","Paprika","Čebula","Česen","Solata","Špinača","Rukola","Brokoli","Cvetača","Korenje","Tikvice","Buča","Beluši","Por","Koleraba","Zelje","Rdeča pesa","Redkvice","Zelena","Krompir","Sladki krompir","Gobe","Artičoke","Feferoni","Jajčevci"]},
+  {cat:"Jajca in mlečni",items:["Jajca","Mleko","Rastlinsko mleko","Jogurt","Grški jogurt","Sir (trdi)","Sir (mehki)","Mozzarella","Feta sir","Maslo","Skuta","Kisla smetana","Sladka smetana","Kremni sir","Parmezan"]},
+  {cat:"Pekarna",items:["Kruh","Žemlje","Polnozrnat kruh","Baguette","Pita kruh","Tortilije","Prepečenec","Ovseni kosmiči","Muesli","Granola"]},
+  {cat:"Suha živila",items:["Testenine","Špageti","Riž","Rjavi riž","Kvinoja","Ječmen","Proso","Leča (rdeča)","Leča (zelena)","Čičerika","Fižol (beli)","Fižol (rdeči)","Konzerva paradižnikov","Kokosovo mleko","Olivno olje","Sončnično olje","Kis","Sojina omaka","Tahini","Arašidovo maslo","Med","Javorjev sirup","Orehi","Mandlji","Indijski oreščki","Lešniki","Bučna semena","Sezam","Lanena semena","Chia semena","Čokolada (temna)","Kakav"]},
+  {cat:"Zamrznjeno",items:["Zamrznjen grah","Zamrznjena koruza","Zamrznjena špinača","Zamrznjen brokoli","Zamrznjene jagode","Tofu","Edamame"]},
+  {cat:"Začimbe in omake",items:["Sol","Poper","Kurkuma","Kumina","Koriander","Paprika v prahu","Cimet","Muškatni orešček","Lovorov list","Timijan","Rožmarin","Bazilika","Origano","Curry v prahu","Čili v prahu","Ingver (svež)","Gorčica","Kečap","Tabasco","Jušna osnova"]},
+  {cat:"Dodatki za peko",items:["Moka (bela)","Moka (polnozrnata)","Moka (pirina)","Sladkor","Rjavi sladkor","Sladkor v prahu","Vanilijev sladkor","Pecilni prašek","Soda bikarbona","Instant kvas","Suhi kvas","Jedilni škrob","Mandljeva moka","Kakav v prahu","Čokolada za kuhanje","Čokoladne kapljice","Aroma vanilije","Rum za peko","Kokosova moka","Kokosovi kosmiči","Glazura","Barvila za hrano","Sladkorna dekoracija","Orehi za peko","Mandlji (blanširani)","Rozine za peko"]},
+  {cat:"Pijače",items:["Voda","Mineralna voda","Sok (pomaranča)","Sok (jabolko)","Zeliščni čaj","Zeleni čaj","Kava","Kakav v prahu","Vino (rdeče)","Vino (belo)","Pivo"]},
+  {cat:"Sladkarije",items:["Temna čokolada","Sladoled","Piškoti"]},
+  {cat:"Osebna nega",items:["Šampon","Balzam za lase","Gel za tuširanje","Milo","Zobna pasta","Zobna ščetka","Nitka za zobe","Dezodorant","Krema za obraz","Krema za telo","Tamponi","Vložki"]},
+  {cat:"Čistila",items:["Detergent za pomivanje","Detergent za pranje","Mehčalec","Čistilo za kopalnico","Čistilo za WC","Čistilo za kuhinjske površine","Toaletni papir","Papirnate brisačke","Kuhinjske krpe","Aluminijasta folija","Pečica papir","Vrečke za smeti","Gobica"]},
+  {cat:"Ostalo",items:["Baterije","Sveče","Vžigalice","Žarnice","Vrečke za zamrzovalnik"]}
+];
+
+function loadItems(){
+  try{const s=localStorage.getItem('nakup-v5');if(s)return JSON.parse(s);}catch(e){}
+  const arr=[];
+  DEFAULT_ITEMS.forEach(g=>g.items.forEach(name=>arr.push({name,cat:g.cat,checked:false,qty:1,shops:[]})));
+  return arr;
 }
+function loadSaved(){try{const s=localStorage.getItem('nakup-saved');if(s)return JSON.parse(s);}catch(e){}return[];}
+function loadFreq(){try{const s=localStorage.getItem('nakup-freq');if(s)return JSON.parse(s);}catch(e){}return{};}
 
-let items = loadItems();
+let items=loadItems();
+let extraItems=[];
+let savedLists=loadSaved();
+let freq=loadFreq();
 
-function save() {
-  try { localStorage.setItem('nakup-v3', JSON.stringify(items)); } catch(e) {}
+function save(){try{localStorage.setItem('nakup-v5',JSON.stringify(items));}catch(e){}}
+function saveSaved(){try{localStorage.setItem('nakup-saved',JSON.stringify(savedLists));}catch(e){}}
+function saveFreq(){try{localStorage.setItem('nakup-freq',JSON.stringify(freq));}catch(e){}}
+
+function trackFreq(name){freq[name]=(freq[name]||0)+1;saveFreq();}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>{t.classList.remove('show');},3000);
 }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
+function showToastUndo(msg,undoFn){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg+' <span onclick="undoAction()" style="text-decoration:underline;cursor:pointer;margin-left:8px;font-weight:600;">Razveljavi</span>';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  window._undoFn=undoFn;
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>{t.classList.remove('show');window._undoFn=null;},4000);
 }
+function undoAction(){if(window._undoFn){window._undoFn();window._undoFn=null;}document.getElementById('toast').classList.remove('show');}
 
-function showView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.bottom-bar').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.getElementById('bottomBar-' + v).classList.add('active');
-  document.getElementById('tab-' + v).classList.add('active');
-  if (v==='nakup') renderNakup();
-  else if (v==='kosarica') renderKosarica();
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.bottom-bar').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('bottomBar-'+v).classList.add('active');
+  document.getElementById('tab-'+v).classList.add('active');
+  if(v==='nakup')renderNakup();
+  else if(v==='kosarica')renderKosarica();
+  else if(v==='shranjeni')renderShranjeni();
   else renderSeznam();
 }
 
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getShopColor(id){return(SHOPS.find(s=>s.id===id)||{}).color||'#999';}
+function getShopName(id){return(SHOPS.find(s=>s.id===id)||{}).name||id;}
+function checkSvg(){return`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
-function renderNakup() {
-  const container = document.getElementById('nakupList');
-  const empty = document.getElementById('nakupEmpty');
-  container.innerHTML = '';
-  if (!items.length) { empty.style.display='block'; return; }
-  empty.style.display='none';
-  const checked = items.filter(i=>i.checked).length;
-  document.getElementById('headerStats').textContent = checked > 0 ? `${checked}/${items.length} v košarici` : `${items.length} artiklov`;
-  CATEGORIES.forEach(cat => {
-    const catItems = items.filter(i=>i.cat===cat);
-    if (!catItems.length) return;
-    const hdr = document.createElement('div');
-    hdr.className = 'cat-title';
-    hdr.textContent = cat;
-    container.appendChild(hdr);
-    catItems.forEach(item => {
-      const idx = items.indexOf(item);
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      const row = document.createElement('div');
-      row.className = 'item-row' + (item.checked?' checked':'');
-      row.innerHTML = `
-        <div class="item-check" onclick="toggleItem(${idx})">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+function renderNakup(){
+  const container=document.getElementById('nakupList');
+  const empty=document.getElementById('nakupEmpty');
+  const searchVal=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+  const clearBtn=document.getElementById('searchClear');
+  clearBtn.style.display=searchVal?'block':'none';
+
+  // Set sticky offset
+  const hh=document.querySelector('header').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', hh+'px');
+
+  container.innerHTML='';
+
+  // Pogosti artikli (top 5, neoznačeni)
+  const freqSection=document.getElementById('freqSection');
+  const freqPills=document.getElementById('freqPills');
+  if(!searchVal){
+    const topFreq=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([name])=>name).filter(name=>{
+      const it=items.find(i=>i.name===name);
+      return it&&!it.checked;
+    });
+    if(topFreq.length){
+      freqSection.style.display='block';
+      freqPills.innerHTML='';
+      topFreq.forEach(name=>{
+        const btn=document.createElement('button');
+        btn.className='freq-pill';
+        btn.textContent=name;
+        btn.onclick=()=>{
+          const it=items.find(i=>i.name===name);
+          if(it){it.checked=true;it.qty=it.qty||1;trackFreq(name);save();renderNakup();}
+        };
+        freqPills.appendChild(btn);
+      });
+    } else freqSection.style.display='none';
+  } else freqSection.style.display='none';
+
+  // Kategorije — hitri skoki
+  const catBar=document.getElementById('catBar');
+  catBar.innerHTML='';
+  if(!searchVal){
+    const activeCats=CATEGORIES.filter(cat=>items.some(i=>i.cat===cat));
+    activeCats.forEach(cat=>{
+      const btn=document.createElement('button');
+      btn.textContent=cat;
+      btn.style.cssText='padding:4px 9px;border:0.5px solid var(--border2);border-radius:20px;background:var(--surface);font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--text2);cursor:pointer;white-space:nowrap;';
+      btn.onclick=()=>{
+        const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
+        if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+      };
+      catBar.appendChild(btn);
+    });
+  }
+
+  let hasResults=false;
+  const checked=items.filter(i=>i.checked).length;
+  document.getElementById('headerStats').textContent=checked>0?`${checked}/${items.length}`:`${items.length} artiklov`;
+
+  CATEGORIES.forEach(cat=>{
+    let catItems=items.filter(i=>i.cat===cat);
+    if(searchVal) catItems=catItems.filter(i=>i.name.toLowerCase().includes(searchVal));
+    if(!catItems.length)return;
+    hasResults=true;
+
+    if(!searchVal){
+      const hdr=document.createElement('div');
+      hdr.className='cat-title';
+      hdr.id='cat-'+cat.replace(/\s+/g,'-');
+      hdr.textContent=cat;
+      container.appendChild(hdr);
+    }
+
+    catItems.forEach(item=>{
+      const idx=items.indexOf(item);
+      const card=document.createElement('div');
+      card.className='item-card';
+
+      const tagsHtml=item.shops&&item.shops.length
+        ?item.shops.map(s=>`<span style="font-size:11px;font-weight:600;color:${getShopColor(s)};">${getShopName(s)}</span>`).join(' ')
+        :'';
+
+      const row=document.createElement('div');
+      row.className='item-row'+(item.checked?' checked':'');
+      row.innerHTML=`
+        <div class="item-check" onclick="toggleItem(${idx})">${checkSvg()}</div>
         <div class="item-name" onclick="toggleItem(${idx})">${escHtml(item.name)}</div>
+        ${item.checked?`<div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
+          <span class="qty-num">${item.qty||1}</span>
+          <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+        </div>`:''}
+        <div style="display:flex;gap:3px;flex-shrink:0;">${tagsHtml}</div>
       `;
       card.appendChild(row);
+
+      if(item.checked){
+        const picker=document.createElement('div');
+        picker.className='shop-picker open';
+        const main5=SHOPS.slice(0,5);
+        const rest=SHOPS.slice(5);
+        const mainBtns=main5.map(s=>{
+          const sel=item.shops&&item.shops.includes(s.id);
+          return`<button class="shop-btn${sel?' selected':''}" style="border-color:${s.color};color:${sel?'#fff':s.color};background:${sel?s.color:'transparent'};" onclick="toggleShop(${idx},'${s.id}')">${s.name}</button>`;
+        }).join('');
+        const restBtns=rest.map(s=>{
+          const sel=item.shops&&item.shops.includes(s.id);
+          return`<button class="shop-btn${sel?' selected':''}" style="border-color:${s.color};color:${sel?'#fff':s.color};background:${sel?s.color:'transparent'};" onclick="toggleShop(${idx},'${s.id}')">${s.name}</button>`;
+        }).join('');
+        picker.innerHTML=`<div class="shop-btns">${mainBtns}</div>${rest.length?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">${restBtns}</div>`:''}`;
+        card.appendChild(picker);
+      }
       container.appendChild(card);
     });
   });
+
+  empty.style.display=hasResults?'none':'block';
+  if(!hasResults){
+    empty.querySelector('p').innerHTML=searchVal?'Ni zadetkov za <strong>'+escHtml(searchVal)+'</strong>.':'Seznam je prazen.';
+    let clearBtn2=empty.querySelector('.clear-search-btn');
+    if(searchVal&&!clearBtn2){
+      clearBtn2=document.createElement('button');
+      clearBtn2.className='btn btn-accent clear-search-btn';
+      clearBtn2.style.cssText='margin-top:12px;';
+      clearBtn2.textContent='× Počisti iskanje';
+      clearBtn2.onclick=()=>{document.getElementById('searchInput').value='';renderNakup();};
+      empty.appendChild(clearBtn2);
+    } else if(!searchVal&&clearBtn2){
+      clearBtn2.remove();
+    }
+  }
 }
 
-function renderKosarica() {
-  const container = document.getElementById('kosaricaList');
-  const empty = document.getElementById('kosaricaEmpty');
-  container.innerHTML = '';
-  const checked = items.filter(i=>i.checked);
-  if (!checked.length) { empty.style.display='block'; return; }
-  empty.style.display='none';
-  document.getElementById('headerStats').textContent = `${checked.length} v košarici`;
-  CATEGORIES.forEach(cat => {
-    const catItems = checked.filter(i=>i.cat===cat);
-    if (!catItems.length) return;
-    const hdr = document.createElement('div');
-    hdr.className = 'cat-title';
-    hdr.textContent = cat;
-    container.appendChild(hdr);
-    catItems.forEach(item => {
-      const idx = items.indexOf(item);
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      const row = document.createElement('div');
-      row.className = 'item-row checked';
-      row.innerHTML = `
-        <div class="item-check" style="background:var(--accent);border-color:var(--accent);" onclick="items[${idx}].checked=false;save();renderKosarica();">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="item-name" style="text-decoration:none;color:var(--text);">${escHtml(item.name)}</div>
-      `;
-      card.appendChild(row);
-      container.appendChild(card);
+function toggleItem(idx){
+  items[idx].checked=!items[idx].checked;
+  if(items[idx].checked){items[idx].qty=items[idx].qty||1;trackFreq(items[idx].name);}
+  else items[idx].shops=[];
+  save();
+  // Počisti iskanje po izbiri
+  const searchInp=document.getElementById('searchInput');
+  if(searchInp&&searchInp.value){searchInp.value='';}
+  renderNakup();
+}
+
+function changeQty(idx,d){
+  items[idx].qty=Math.max(1,(items[idx].qty||1)+d);
+  save();renderNakup();
+}
+
+function toggleShop(idx,shopId){
+  if(!items[idx].shops)items[idx].shops=[];
+  const i=items[idx].shops.indexOf(shopId);
+  if(i>=0)items[idx].shops.splice(i,1);
+  else items[idx].shops.push(shopId);
+  save();renderNakup();
+}
+
+function renderKosarica(){
+  const container=document.getElementById('kosaricaList');
+  const empty=document.getElementById('kosaricaEmpty');
+  container.innerHTML='';
+  const checked=items.filter(i=>i.checked);
+
+  if(!checked.length){
+    empty.style.display='block';
+    if(!empty.querySelector('.dodaj-btn')){
+      const btn=document.createElement('button');
+      btn.className='btn btn-accent dodaj-btn';
+      btn.style.cssText='margin-top:12px;';
+      btn.textContent='+ Dodaj iz seznama';
+      btn.onclick=()=>showView('nakup');
+      empty.appendChild(btn);
+    }
+  } else {
+    empty.style.display='none';
+  }
+
+  document.getElementById('headerStats').textContent=checked.length?`${checked.length} v košarici`:'';
+
+  if(checked.length){
+    const allHdr=document.createElement('div');
+    allHdr.className='shop-section-hdr';
+    allHdr.innerHTML=`<div class="shop-section-bar" style="background:var(--accent);"></div><div class="shop-section-name" style="color:var(--accent);">Skupni seznam</div>`;
+    container.appendChild(allHdr);
+
+    CATEGORIES.forEach(cat=>{
+      const catItems=checked.filter(i=>i.cat===cat);
+      if(!catItems.length)return;
+      const hdr=document.createElement('div');
+      hdr.className='cat-title';hdr.textContent=cat;
+      container.appendChild(hdr);
+      catItems.forEach(item=>{
+        const idx=items.indexOf(item);
+        const row=document.createElement('div');
+        row.className='shop-item-row';
+        const shopTags=item.shops&&item.shops.length
+          ?item.shops.map(s=>`<span style="font-size:11px;font-weight:600;color:${getShopColor(s)};">${getShopName(s)}</span>`).join(' '):'';
+        const qtyBadge=item.qty&&item.qty>1?`<span style="font-size:12px;color:var(--text3);margin-right:4px;">×${item.qty}</span>`:'';
+        row.innerHTML=`<span style="flex:1;">${escHtml(item.name)}</span>${qtyBadge}<div style="display:flex;gap:4px;">${shopTags}</div><button onclick="items[${idx}].checked=false;items[${idx}].shops=[];save();renderKosarica();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;margin-left:6px;">×</button>`;
+        container.appendChild(row);
+      });
     });
+
+    // Dodaj iz seznama gumb
+    const dodajBtn=document.createElement('button');
+    dodajBtn.style.cssText='width:100%;margin-top:10px;margin-bottom:6px;padding:9px;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-size:13px;font-family:\'DM Sans\',sans-serif;cursor:pointer;text-align:center;';
+    dodajBtn.textContent='+ Dodaj iz seznama';
+    dodajBtn.onclick=()=>showView('nakup');
+    container.appendChild(dodajBtn);
+
+    // Ročno dodaj
+    const addRow=document.createElement('div');
+    addRow.style.cssText='display:flex;gap:6px;margin-top:4px;margin-bottom:4px;';
+    addRow.innerHTML=`<input type="text" id="extraItemInput" placeholder="Ročno dodaj artikel..." onkeydown="if(event.key==='Enter')addExtraItem()" style="margin-bottom:0;font-size:13px;padding:8px 10px;"/><button onclick="addExtraItem()" style="padding:8px 12px;border:1.5px solid var(--accent);border-radius:var(--radius-sm);background:transparent;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;">+</button>`;
+    container.appendChild(addRow);
+
+    const extraListDiv=document.createElement('div');
+    extraListDiv.id='extraList';
+    container.appendChild(extraListDiv);
+    renderExtraList();
+  }
+
+  // Po trgovinah
+  SHOPS.forEach(shop=>{
+    const shopItems=checked.filter(i=>i.shops&&i.shops.includes(shop.id));
+    if(!shopItems.length)return;
+    const hdr=document.createElement('div');
+    hdr.className='shop-section-hdr';
+    hdr.innerHTML=`<div class="shop-section-bar" style="background:${shop.color};"></div><div class="shop-section-name" style="color:${shop.color};">${shop.name}</div><button class="btn" onclick="deliSeznam('${shop.id}')" style="margin-left:auto;padding:4px 9px;font-size:11px;color:${shop.color};border-color:${shop.color}30;">📤 Deli</button>`;
+    container.appendChild(hdr);
+    shopItems.forEach(item=>{
+      const row=document.createElement('div');
+      row.className='shop-item-row';
+      row.style.borderLeft=`3px solid ${shop.color}`;
+      const qty=item.qty&&item.qty>1?` ×${item.qty}`:'';
+      row.innerHTML=`<span>${escHtml(item.name)}${qty?`<span style="color:var(--text3);font-size:12px;"> ${qty}</span>`:''}</span>`;
+      container.appendChild(row);
+    });
+    const shopExtras=extraItems.filter(i=>i.shop===shop.id);
+    shopExtras.forEach(item=>{
+      const idx=extraItems.indexOf(item);
+      const row=document.createElement('div');
+      row.className='shop-item-row';
+      row.style.borderLeft=`3px solid ${shop.color}`;
+      row.innerHTML=`<span style="${item.done?'text-decoration:line-through;opacity:0.5;':''};flex:1;">${escHtml(item.name)}</span><button onclick="extraItems[${idx}].done=!extraItems[${idx}].done;renderKosarica();" style="border:none;background:transparent;color:${shop.color};font-size:12px;cursor:pointer;">${item.done?'↩':'✓'}</button><button onclick="extraItems.splice(${idx},1);renderKosarica();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`;
+      container.appendChild(row);
+    });
+    const addRow=document.createElement('div');
+    addRow.style.cssText='display:flex;gap:6px;margin-top:5px;';
+    addRow.innerHTML=`<input type="text" id="shopInput-${shop.id}" placeholder="Ročno dodaj za ${shop.name}..." onkeydown="if(event.key==='Enter')addShopExtra('${shop.id}')" style="margin-bottom:0;font-size:12px;padding:7px 10px;border-color:${shop.color}40;"/><button onclick="addShopExtra('${shop.id}')" style="padding:7px 11px;border:1.5px solid ${shop.color};border-radius:var(--radius-sm);background:transparent;color:${shop.color};font-size:13px;font-weight:600;cursor:pointer;">+</button>`;
+    container.appendChild(addRow);
   });
 }
 
-function renderSeznam() {
-  const container = document.getElementById('seznamList');
-  const empty = document.getElementById('seznamEmpty');
-  container.innerHTML = '';
-  if (!items.length) { empty.style.display='block'; return; }
+function addExtraItem(){
+  const inp=document.getElementById('extraItemInput');
+  const name=inp.value.trim();
+  if(!name)return;
+  extraItems.push({name,done:false});
+  inp.value='';
+  renderExtraList();
+  showToast('Dodano: '+name);
+}
+
+function renderExtraList(){
+  const container=document.getElementById('extraList');
+  if(!container)return;
+  container.innerHTML='';
+  const gen=extraItems.filter(i=>!i.shop);
+  if(!gen.length)return;
+  const hdr=document.createElement('div');
+  hdr.className='cat-title';hdr.textContent='Dodatno';
+  container.appendChild(hdr);
+  gen.forEach(item=>{
+    const idx=extraItems.indexOf(item);
+    const card=document.createElement('div');
+    card.className='item-card';
+    card.innerHTML=`<div class="item-row ${item.done?'checked':''}" onclick="extraItems[${idx}].done=!extraItems[${idx}].done;renderExtraList();">
+      <div class="item-check" style="${item.done?'background:var(--accent);border-color:var(--accent);':''}">${checkSvg()}</div>
+      <div class="item-name" style="${item.done?'text-decoration:line-through;color:var(--text3);':''}">${escHtml(item.name)}</div>
+      <button class="del-btn" onclick="event.stopPropagation();extraItems.splice(${idx},1);renderExtraList();">×</button>
+    </div>`;
+    container.appendChild(card);
+  });
+}
+
+function addShopExtra(shopId){
+  const inp=document.getElementById('shopInput-'+shopId);
+  if(!inp)return;
+  const name=inp.value.trim();
+  if(!name)return;
+  extraItems.push({name,shop:shopId,done:false});
+  inp.value='';
+  renderKosarica();
+  showToast('Dodano: '+name);
+}
+
+function renderSeznam(){
+  const container=document.getElementById('seznamList');
+  const empty=document.getElementById('seznamEmpty');
+  container.innerHTML='';
+  if(!items.length){empty.style.display='block';return;}
   empty.style.display='none';
-  document.getElementById('headerStats').textContent = `${items.length} artiklov`;
-  CATEGORIES.forEach(cat => {
-    const catItems = items.map((item,idx)=>({item,idx})).filter(({item})=>item.cat===cat);
-    if (!catItems.length) return;
-    const hdr = document.createElement('div');
-    hdr.className = 'cat-title';
-    hdr.textContent = cat;
+  document.getElementById('headerStats').textContent=`${items.length} artiklov`;
+  CATEGORIES.forEach(cat=>{
+    const catItems=items.map((item,idx)=>({item,idx})).filter(({item})=>item.cat===cat);
+    if(!catItems.length)return;
+    const hdr=document.createElement('div');
+    hdr.className='cat-title';hdr.textContent=cat;
     container.appendChild(hdr);
-    catItems.forEach(({item,idx}) => {
-      const row = document.createElement('div');
-      row.className = 'seznam-item';
-      row.draggable = true;
-      row.dataset.idx = idx;
-      row.innerHTML = `
-        <span class="drag-handle">≡</span>
-        <div class="seznam-item-name">${escHtml(item.name)}</div>
-        <button class="del-btn" onclick="deleteItem(${idx})">×</button>
-      `;
+    catItems.forEach(({item,idx})=>{
+      const row=document.createElement('div');
+      row.className='seznam-item';
+      row.draggable=true;row.dataset.idx=idx;
+      row.innerHTML=`<span class="drag-handle">≡</span><div class="seznam-item-name">${escHtml(item.name)}</div><button class="del-btn" onclick="deleteItem(${idx})">×</button>`;
       setupDrag(row);
       container.appendChild(row);
     });
   });
 }
 
-let dragSrcIdx = null;
+function renderShranjeni(){
+  const container=document.getElementById('shranjeniList');
+  const empty=document.getElementById('shranjeniEmpty');
+  container.innerHTML='';
+  if(!savedLists.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  document.getElementById('headerStats').textContent=savedLists.length+' shranjenih';
+  savedLists.forEach((s,idx)=>{
+    const card=document.createElement('div');
+    card.className='item-card';
+    card.style.padding='13px';
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:10px;">
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px;">${escHtml(s.ime)}</div>
+        <div style="font-size:12px;color:var(--text3);">${s.datum} · ${s.artikli.length} artiklov</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px;">${s.artikli.slice(0,4).map(a=>escHtml(a.name)).join(', ')}${s.artikli.length>4?'...':''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button onclick="naloziSeznam(${idx})" style="padding:7px 11px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;">Naloži</button>
+        <button onclick="izbrisiShranjen(${idx})" style="padding:7px 11px;background:transparent;color:var(--text3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;">Izbriši</button>
+      </div>
+    </div>`;
+    container.appendChild(card);
+  });
+}
 
-function setupDrag(el) {
-  el.addEventListener('dragstart', e => {
-    dragSrcIdx = parseInt(el.dataset.idx);
-    setTimeout(()=>el.classList.add('dragging'), 0);
-    e.dataTransfer.effectAllowed = 'move';
+let dragSrcIdx=null;
+function setupDrag(el){
+  el.addEventListener('dragstart',e=>{dragSrcIdx=parseInt(el.dataset.idx);setTimeout(()=>el.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragend',()=>{el.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));});
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+  el.addEventListener('drop',e=>{
+    e.preventDefault();el.classList.remove('drag-over');
+    const t=parseInt(el.dataset.idx);
+    if(dragSrcIdx===null||dragSrcIdx===t)return;
+    const moved=items.splice(dragSrcIdx,1)[0];items.splice(t,0,moved);
+    save();renderSeznam();
   });
-  el.addEventListener('dragend', () => {
-    el.classList.remove('dragging');
-    document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));
-  });
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => {
-    e.preventDefault();
-    el.classList.remove('drag-over');
-    const targetIdx = parseInt(el.dataset.idx);
-    if (dragSrcIdx === null || dragSrcIdx === targetIdx) return;
-    const moved = items.splice(dragSrcIdx, 1)[0];
-    items.splice(targetIdx, 0, moved);
-    save(); renderSeznam();
-  });
-
-  // Touch support
-  let touchStartY = 0, touchEl = null;
-  const handle = el.querySelector('.drag-handle');
-  handle.addEventListener('touchstart', e => {
-    touchStartY = e.touches[0].clientY;
-    touchEl = el;
-    dragSrcIdx = parseInt(el.dataset.idx);
-    el.classList.add('dragging');
-  }, {passive:true});
-  handle.addEventListener('touchmove', e => {
-    if (!touchEl) return;
-    e.preventDefault();
-    const y = e.touches[0].clientY;
-    document.querySelectorAll('.seznam-item').forEach(other => {
-      const rect = other.getBoundingClientRect();
-      if (y >= rect.top && y <= rect.bottom && other !== touchEl) {
-        document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));
-        other.classList.add('drag-over');
-      }
+  const handle=el.querySelector('.drag-handle');
+  let touchEl=null;
+  handle.addEventListener('touchstart',e=>{touchEl=el;dragSrcIdx=parseInt(el.dataset.idx);el.classList.add('dragging');},{passive:true});
+  handle.addEventListener('touchmove',e=>{
+    if(!touchEl)return;e.preventDefault();
+    const y=e.touches[0].clientY;
+    document.querySelectorAll('.seznam-item').forEach(other=>{
+      const r=other.getBoundingClientRect();
+      if(y>=r.top&&y<=r.bottom&&other!==touchEl){document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));other.classList.add('drag-over');}
     });
-  }, {passive:false});
-  handle.addEventListener('touchend', () => {
-    if (!touchEl) return;
-    const over = document.querySelector('.seznam-item.drag-over');
-    if (over && dragSrcIdx !== null) {
-      const targetIdx = parseInt(over.dataset.idx);
-      if (dragSrcIdx !== targetIdx) {
-        const moved = items.splice(dragSrcIdx, 1)[0];
-        items.splice(targetIdx, 0, moved);
-        save();
-      }
-    }
+  },{passive:false});
+  handle.addEventListener('touchend',()=>{
+    if(!touchEl)return;
+    const over=document.querySelector('.seznam-item.drag-over');
+    if(over&&dragSrcIdx!==null){const t=parseInt(over.dataset.idx);if(dragSrcIdx!==t){const moved=items.splice(dragSrcIdx,1)[0];items.splice(t,0,moved);save();}}
     document.querySelectorAll('.drag-over').forEach(e=>e.classList.remove('drag-over'));
-    touchEl.classList.remove('dragging');
-    touchEl = null; dragSrcIdx = null;
-    renderSeznam();
+    touchEl.classList.remove('dragging');touchEl=null;dragSrcIdx=null;renderSeznam();
   });
 }
 
-function toggleItem(idx) { items[idx].checked = !items[idx].checked; save(); renderNakup(); }
-
-function addItem() {
-  const inp = document.getElementById('newItemInput');
-  const cat = document.getElementById('newItemCat').value;
-  const name = inp.value.trim();
-  if (!name) return;
-  if (items.some(i=>i.name.toLowerCase()===name.toLowerCase())) { showToast('Ta artikel že obstaja'); return; }
-  const firstInCat = items.findIndex(i=>i.cat===cat);
-  if (firstInCat >= 0) items.splice(firstInCat, 0, {name, cat, checked:false});
-  else items.unshift({name, cat, checked:false});
-  inp.value = '';
-  save(); renderSeznam();
-  showToast('Dodano: ' + name);
+function addItem(){
+  const inp=document.getElementById('newItemInput');
+  const cat=document.getElementById('newItemCat').value;
+  const name=inp.value.trim();
+  if(!name)return;
+  if(items.some(i=>i.name.toLowerCase()===name.toLowerCase())){showToast('Ta artikel že obstaja');return;}
+  const firstInCat=items.findIndex(i=>i.cat===cat);
+  const newItem={name,cat,checked:false,qty:1,shops:[]};
+  if(firstInCat>=0)items.splice(firstInCat,0,newItem);else items.unshift(newItem);
+  inp.value='';save();renderSeznam();
+  showToast('Dodano: '+name);
 }
 
-function deleteItem(idx) {
-  const name = items[idx].name;
-  items.splice(idx,1);
-  save(); renderSeznam();
-  showToast('Odstranjeno: ' + name);
+function deleteItem(idx){
+  const name=items[idx].name;
+  items.splice(idx,1);save();renderSeznam();
+  showToast('Odstranjeno: '+name);
 }
 
-function odznaci() {
-  items.forEach(i=>i.checked=false);
+function pocistiKupljene(){
+  const n=items.filter(i=>i.checked).length;
+  if(!n){showToast('Ni označenih artiklov');return;}
+  window._pendingClear=true;
+  document.getElementById('shraniDialog').style.display='flex';
+  document.getElementById('shraniImeDialog').style.display='none';
+}
+
+function potrdiOdznaci(){
+  const n=items.filter(i=>i.checked).length;
+  if(!n){showToast('Ni označenih artiklov');return;}
+  const w=document.getElementById('odznaciWarning');
+  w.style.display=w.style.display==='flex'?'none':'flex';
+}
+
+function odznaci(){
+  items.forEach(i=>{i.checked=false;i.shops=[];});
+  extraItems=[];
   save();
-  const v = document.querySelector('.tab.active').id.replace('tab-','');
-  if (v==='nakup') renderNakup(); else renderKosarica();
+  const v=document.querySelector('.tab.active').id.replace('tab-','');
+  if(v==='nakup')renderNakup();else renderKosarica();
   showToast('Kljukice počiščene');
 }
 
-function pocistiKupljene() {
-  const n = items.filter(i=>i.checked).length;
-  if (!n) { showToast('Ni označenih artiklov'); return; }
-  items.forEach(i=>i.checked=false);
+function novListek(){
+  const n=items.filter(i=>i.checked).length;
+  if(!n){showToast('Ni označenih artiklov');return;}
+  window._pendingClear=true;
+  document.getElementById('shraniDialog').style.display='flex';
+  document.getElementById('shraniImeDialog').style.display='none';
+}
+
+function odpriShrani(){
+  document.getElementById('shraniDialog').style.display='none';
+  document.getElementById('shraniImeDialog').style.display='flex';
+  document.getElementById('shraniIme').value='';
+  document.getElementById('shraniIme').focus();
+}
+
+function zapriBrezShranjevanja(){
+  document.getElementById('shraniDialog').style.display='none';
+  document.getElementById('shraniImeDialog').style.display='none';
+  if(window._pendingClear){izvediBrisanje();window._pendingClear=false;}
+}
+
+function potrdiShrani(){
+  const inp=document.getElementById('shraniIme');
+  const ime=inp.value.trim();
+  const checked=items.filter(i=>i.checked);
+  if(ime&&checked.length){
+    const datum=new Date().toLocaleDateString('sl-SI');
+    savedLists.unshift({ime,datum,artikli:checked.map(i=>({name:i.name,cat:i.cat,shops:[...(i.shops||[])],qty:i.qty||1})),extra:extraItems.filter(e=>!e.shop).map(e=>({name:e.name}))});
+    saveSaved();
+    showToast('Seznam "'+ime+'" shranjen!');
+  }
+  document.getElementById('shraniImeDialog').style.display='none';
+  if(window._pendingClear){izvediBrisanje();window._pendingClear=false;}
+}
+
+function shraniSeznam(){
+  const checked=items.filter(i=>i.checked);
+  if(!checked.length){showToast('Ni označenih artiklov za shranjevanje');return;}
+  document.getElementById('shraniDialog').style.display='none';
+  const d=document.getElementById('shraniImeDialog');
+  d.style.display=d.style.display==='flex'?'none':'flex';
+  if(d.style.display==='flex'){window._pendingClear=false;document.getElementById('shraniIme').value='';document.getElementById('shraniIme').focus();}
+}
+
+function izvediBrisanje(){
+  items.forEach(i=>{i.checked=false;i.shops=[];});
+  extraItems=[];
   save();
-  const v = document.querySelector('.tab.active').id.replace('tab-','');
-  if (v==='nakup') renderNakup(); else renderKosarica();
-  showToast(`Počiščeno ${n} kljukic`);
+  const v=document.querySelector('.tab.active').id.replace('tab-','');
+  if(v==='nakup')renderNakup();else renderKosarica();
 }
 
-function deliSeznam() {
-  const checked = items.filter(i=>i.checked);
-  if (!checked.length) { showToast('Ni označenih artiklov'); return; }
-  let tekst = '🛒 Nakupni seznam:\n\n';
-  CATEGORIES.forEach(cat => {
-    const catItems = checked.filter(i=>i.cat===cat);
-    if (!catItems.length) return;
-    tekst += cat + ':\n';
-    catItems.forEach(i => tekst += '  • ' + i.name + '\n');
-    tekst += '\n';
+function naloziSeznam(idx){
+  const s=savedLists[idx];
+  items.forEach(i=>{i.checked=false;i.shops=[];});
+  s.artikli.forEach(a=>{
+    const found=items.find(i=>i.name.toLowerCase()===a.name.toLowerCase());
+    if(found){found.checked=true;found.shops=[...(a.shops||[])];found.qty=a.qty||1;}
   });
-  if (navigator.share) navigator.share({title:'Nakupni seznam', text:tekst});
+  extraItems=(s.extra||[]).map(e=>({name:e.name,done:false}));
+  save();
+  showToast('Naložen seznam "'+s.ime+'"');
+  showView('kosarica');
+}
+
+function izbrisiShranjen(idx){
+  const ime=savedLists[idx].ime;
+  const backup=savedLists.splice(idx,1)[0];
+  saveSaved();renderShranjeni();
+  showToastUndo('Izbrisano: "'+ime+'"',()=>{savedLists.splice(idx,0,backup);saveSaved();renderShranjeni();});
+}
+
+function deliSeznam(shopId){
+  const checked=items.filter(i=>i.checked);
+  if(!checked.length&&shopId==='vse'){showToast('Ni označenih artiklov');return;}
+  let tekst='';
+  if(shopId==='vse'){
+    tekst='🛒 Nakupovalni seznam:\n\n';
+    CATEGORIES.forEach(cat=>{
+      const ci=checked.filter(i=>i.cat===cat);if(!ci.length)return;
+      tekst+=cat+':\n';
+      ci.forEach(i=>tekst+='  • '+i.name+(i.qty>1?' ×'+i.qty:'')+(i.shops&&i.shops.length?' ('+i.shops.map(getShopName).join(', ')+')':'')+'\n');
+      tekst+='\n';
+    });
+    if(extraItems.length){tekst+='Dodatno:\n';extraItems.forEach(i=>tekst+='  • '+i.name+'\n');}
+  } else {
+    const shop=SHOPS.find(s=>s.id===shopId);
+    const si=checked.filter(i=>i.shops&&i.shops.includes(shopId));
+    tekst=`🛒 ${shop.name} — nakupni seznam:\n\n`;
+    si.forEach(i=>tekst+='  • '+i.name+(i.qty>1?' ×'+i.qty:'')+'\n');
+    const se=extraItems.filter(e=>e.shop===shopId);
+    se.forEach(i=>tekst+='  • '+i.name+'\n');
+  }
+  if(navigator.share)navigator.share({title:'Nakupovalni seznam',text:tekst});
   else navigator.clipboard.writeText(tekst).then(()=>showToast('Seznam kopiran!'));
-}
-
-function izbrisiVse() {
-  if (!confirm('Res izbrisati vse artikle?')) return;
-  items = []; save(); renderSeznam();
-}
-
-let extraItems = [];
-
-function addExtraItem() {
-  const inp = document.getElementById('extraItemInput');
-  const name = inp.value.trim();
-  if (!name) return;
-  extraItems.push({name, done:false});
-  inp.value = '';
-  renderExtraList();
-  showToast('Dodano: ' + name);
-}
-
-function renderExtraList() {
-  const container = document.getElementById('extraList');
-  if (!container) return;
-  container.innerHTML = '';
-  if (!extraItems.length) return;
-  const hdr = document.createElement('div');
-  hdr.className = 'cat-title';
-  hdr.textContent = 'Dodatno';
-  container.appendChild(hdr);
-  extraItems.forEach((item, idx) => {
-    const card = document.createElement('div');
-    card.className = 'item-card';
-    card.innerHTML = `
-      <div class="item-row ${item.done?'checked':''}" onclick="extraItems[${idx}].done=!extraItems[${idx}].done;renderExtraList();">
-        <div class="item-check" style="${item.done?'background:var(--accent);border-color:var(--accent);':''}">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="item-name" style="${item.done?'text-decoration:line-through;color:var(--text3);':''}">${escHtml(item.name)}</div>
-        <button class="del-btn" onclick="event.stopPropagation();extraItems.splice(${idx},1);renderExtraList();">×</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
 }
 
 renderNakup();
