@@ -102,9 +102,17 @@
     Označeni artikli — že v košarici
   </div>
   <div id="kosaricaList"></div>
-  <div id="kosaricaEmpty" class="empty-state">
+  <div id="kosaricaEmpty" class="empty-state" style="display:none;">
     <div class="icon">🧺</div>
     <p>Košarica je prazna.<br>Označi artikle v zavihku <strong>Nakup</strong>.</p>
+  </div>
+  <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
+    <p style="font-size:12px; color:var(--text3); margin-bottom:8px; padding-left:4px;">Dodaj artikel ki ni na seznamu:</p>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="extraItemInput" placeholder="Npr. posebna čokolada..." onkeydown="if(event.key==='Enter')addExtraItem()" style="margin-bottom:0;" />
+      <button class="btn btn-accent" onclick="addExtraItem()" style="white-space:nowrap;">+ Dodaj</button>
+    </div>
+    <div id="extraList" style="margin-top:10px;"></div>
   </div>
 </div>
 
@@ -124,6 +132,7 @@
         <option value="Sladkarije">🍫 Sladkarije</option>
         <option value="Osebna nega">🧴 Osebna nega</option>
         <option value="Čistila">🧹 Čistila</option>
+        <option value="Dodatki za peko">🎂 Dodatki za peko</option>
         <option value="Ostalo">📦 Ostalo</option>
       </select>
       <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
@@ -138,13 +147,11 @@
 </div>
 
 <div class="bottom-bar active" id="bottomBar-nakup">
-  <button class="btn" onclick="odznaci()">Počisti kljukice</button>
-  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti</button>
+  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti kljukice</button>
 </div>
 <div class="bottom-bar" id="bottomBar-kosarica">
-  <button class="btn" onclick="odznaci()">Počisti kljukice</button>
-  <button class="btn btn-share" onclick="deliSeznam()">📤 Deli</button>
-  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti</button>
+  <button class="btn btn-share" onclick="deliSeznam()">📤 Deli seznam</button>
+  <button class="btn btn-accent" onclick="pocistiKupljene()">✓ Počisti kljukice</button>
 </div>
 <div class="bottom-bar" id="bottomBar-seznam">
   <button class="btn btn-danger" onclick="izbrisiVse()">Izbriši vse</button>
@@ -154,7 +161,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const CATEGORIES = ["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Suha živila","Zamrznjeno","Začimbe in omake","Pijače","Sladkarije","Osebna nega","Čistila","Ostalo"];
+const CATEGORIES = ["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Suha živila","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije","Osebna nega","Čistila","Ostalo"];
 
 const DEFAULT_ITEMS = [
   {cat:"Sadje", items:["Banane","Jabolka","Pomaranče","Limona","Limeta","Jagode","Maline","Borovnice","Grozdje","Hruške","Breskve","Slive","Kivi","Mango","Ananas","Melona","Lubenica","Avokado","Datlji","Rozine"]},
@@ -164,6 +171,7 @@ const DEFAULT_ITEMS = [
   {cat:"Suha živila", items:["Testenine","Špageti","Riž","Rjavi riž","Kvinoja","Ječmen","Proso","Leča (rdeča)","Leča (zelena)","Čičerika","Fižol (beli)","Fižol (rdeči)","Konzerva paradižnikov","Kokosovo mleko","Olivno olje","Sončnično olje","Kis","Sojina omaka","Tahini","Arašidovo maslo","Med","Javorjev sirup","Orehi","Mandlji","Indijski oreščki","Lešniki","Bučna semena","Sezam","Lanena semena","Chia semena","Čokolada (temna)","Kakav"]},
   {cat:"Zamrznjeno", items:["Zamrznjen grah","Zamrznjena koruza","Zamrznjena špinača","Zamrznjen brokoli","Zamrznjene jagode","Tofu","Edamame"]},
   {cat:"Začimbe in omake", items:["Sol","Poper","Kurkuma","Kumina","Koriander","Paprika v prahu","Cimet","Muškatni orešček","Lovorov list","Timijan","Rožmarin","Bazilika","Origano","Curry v prahu","Čili v prahu","Ingver (svež)","Gorčica","Kečap","Tabasco","Jušna osnova"]},
+  {cat:"Dodatki za peko", items:["Moka (bela)","Moka (polnozrnata)","Moka (pirina)","Sladkor","Rjavi sladkor","Sladkor v prahu","Vanilijev sladkor","Pecilni prašek","Soda bikarbona","Instant kvas","Suhi kvas","Jedilni škrob","Mandljeva moka","Kakav v prahu","Čokolada za kuhanje","Čokoladne kapljice","Jedilna soda","Tartarov ekstrakt","Cimet","Aroma vanilije","Rum za peko","Limona (lupina)","Pomarančna lupina","Orehi za peko","Mandlji (blanširani)","Rozine za peko","Brusnice (posušene)","Kokosova moka","Kokosovi kosmiči","Glazura","Barvila za hrano","Sladkorna dekoracija"]},
   {cat:"Pijače", items:["Voda","Mineralna voda","Sok (pomaranča)","Sok (jabolko)","Zeliščni čaj","Zeleni čaj","Kava","Kakav v prahu","Vino (rdeče)","Vino (belo)","Pivo"]},
   {cat:"Sladkarije", items:["Temna čokolada","Sladoled","Piškoti"]},
   {cat:"Osebna nega", items:["Šampon","Balzam za lase","Gel za tuširanje","Milo","Zobna pasta","Zobna ščetka","Nitka za zobe","Dezodorant","Krema za obraz","Krema za telo","Tamponi","Vložki"]},
@@ -426,6 +434,43 @@ function deliSeznam() {
 function izbrisiVse() {
   if (!confirm('Res izbrisati vse artikle?')) return;
   items = []; save(); renderSeznam();
+}
+
+let extraItems = [];
+
+function addExtraItem() {
+  const inp = document.getElementById('extraItemInput');
+  const name = inp.value.trim();
+  if (!name) return;
+  extraItems.push({name, done:false});
+  inp.value = '';
+  renderExtraList();
+  showToast('Dodano: ' + name);
+}
+
+function renderExtraList() {
+  const container = document.getElementById('extraList');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!extraItems.length) return;
+  const hdr = document.createElement('div');
+  hdr.className = 'cat-title';
+  hdr.textContent = 'Dodatno';
+  container.appendChild(hdr);
+  extraItems.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
+      <div class="item-row ${item.done?'checked':''}" onclick="extraItems[${idx}].done=!extraItems[${idx}].done;renderExtraList();">
+        <div class="item-check" style="${item.done?'background:var(--accent);border-color:var(--accent);':''}">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="item-name" style="${item.done?'text-decoration:line-through;color:var(--text3);':''}">${escHtml(item.name)}</div>
+        <button class="del-btn" onclick="event.stopPropagation();extraItems.splice(${idx},1);renderExtraList();">×</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 }
 
 renderNakup();
