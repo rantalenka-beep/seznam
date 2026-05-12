@@ -871,7 +871,7 @@ function renderSeznam(){
   if(!items.length){empty.style.display='block';return;}
   empty.style.display='none';
   document.getElementById('headerStats').textContent=`${items.length} artiklov`;
-  CATEGORIES.forEach(cat=>{
+  getCategories().forEach(cat=>{
     const catItems=items.map((item,idx)=>({item,idx})).filter(({item})=>item.cat===cat);
     if(!catItems.length)return;
     const hdr=document.createElement('div');
@@ -881,11 +881,37 @@ function renderSeznam(){
       const row=document.createElement('div');
       row.className='seznam-item';
       row.draggable=true;row.dataset.idx=idx;
-      row.innerHTML=`<span class="drag-handle">≡</span><div class="seznam-item-name">${escHtml(item.name)}</div><button class="del-btn" onclick="deleteItem(${idx})">×</button>`;
+      row.innerHTML=`
+        <span class="drag-handle">≡</span>
+        <div class="seznam-item-name">${escHtml(item.name)}</div>
+        <button onclick="toggleCatPicker(${idx})" style="border:none;background:transparent;color:var(--text3);font-size:12px;cursor:pointer;padding:2px 6px;border-radius:4px;border:0.5px solid var(--border2);" title="Spremeni kategorijo">📂</button>
+        <button class="del-btn" onclick="deleteItem(${idx})">×</button>
+      `;
+      // Cat picker row
+      const picker=document.createElement('div');
+      picker.id='catpicker-'+idx;
+      picker.style.cssText='display:none;padding:8px 12px 10px;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border);';
+      getCategories().forEach(c=>{
+        const btn=document.createElement('button');
+        btn.textContent=c;
+        btn.style.cssText=`padding:4px 9px;border-radius:20px;border:1px solid var(--border2);background:${c===item.cat?'var(--accent)':'transparent'};color:${c===item.cat?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;`;
+        btn.onclick=()=>{items[idx].cat=c;save();renderSeznam();};
+        picker.appendChild(btn);
+      });
+      const card=document.createElement('div');
+      card.className='item-card';
+      card.appendChild(row);
+      card.appendChild(picker);
       setupDrag(row);
-      container.appendChild(row);
+      container.appendChild(card);
     });
   });
+}
+
+function toggleCatPicker(idx){
+  const p=document.getElementById('catpicker-'+idx);
+  if(!p)return;
+  p.style.display=p.style.display==='flex'?'none':'flex';
 }
 
 function renderShranjeni(){
