@@ -192,15 +192,15 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
         <button onclick="addUserCat()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
       </div>
       <div class="cat-title">Vsa področja</div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
-      <div id="allCatList" style="margin-top:4px;"></div>
+      <div id="allCatList" style="margin-top:6px;"></div>
+      <div style="margin-top:12px;background:var(--accent-light);border:1px solid rgba(61,122,79,0.2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--accent-dark);">💡 Za premikanje področij: dolgo pritisni in povleci na željeno mesto.</div>
     </div>
 
     <!-- ARTIKLI -->
     <div id="sub-artikli" style="display:none;">
-      <div class="cat-title" style="margin-bottom:8px;">Izberi področje:</div>
-      <div id="artCatPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
+      <div class="cat-title" style="margin-bottom:4px;">Izberi področje, pri katerem želiš dodati artikel:</div>
+      <div id="artCatPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <div style="margin-bottom:10px;background:var(--accent-light);border:1px solid rgba(61,122,79,0.2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--accent-dark);">💡 Za premikanje artiklov: dolgo pritisni in povleci na željeno mesto.</div>
       <div id="seznamList"></div>
       <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
     </div>
@@ -212,8 +212,8 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
         <button onclick="addUserShop()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
       </div>
       <div class="cat-title">Vse trgovine</div>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
-      <div id="allShopList" style="margin-top:4px;"></div>
+      <div id="allShopList" style="margin-top:6px;"></div>
+      <div style="margin-top:12px;background:var(--accent-light);border:1px solid rgba(61,122,79,0.2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--accent-dark);">💡 Za premikanje trgovin: dolgo pritisni in povleci na željeno mesto.</div>
     </div>
 
   </div>
@@ -686,18 +686,25 @@ function showSubtab(t){
     const btn=document.getElementById('subtab-'+s);
     const arrow=document.getElementById('subtab-'+s+'-arrow');
     if(s===t){
-      btn.style.background=t==='podroca'?'#e8f2ec':t==='artikli'?'#f0f4ff':'#fff8f0';
-      btn.style.color=t==='podroca'?'var(--accent)':t==='artikli'?'#0050a0':'#e87722';
+      btn.style.background=t==='podroca'?'#d0e8d8':t==='artikli'?'#d0dff5':'#fce8d0';
+      btn.style.color=t==='podroca'?'var(--accent-dark)':t==='artikli'?'#003580':'#c05000';
+      btn.style.fontWeight='600';
       if(arrow)arrow.textContent='▾';
     } else {
       btn.style.background='transparent';
       btn.style.color='var(--text2)';
+      btn.style.fontWeight='500';
       if(arrow)arrow.textContent='›';
     }
   });
   if(t==='artikli')renderSeznam();
   if(t==='podroca')renderAllCats();
   if(t==='trgovine')renderAllShops();
+  // Scroll to content
+  setTimeout(()=>{
+    const el=document.getElementById('sub-'+t);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  },50);
 }
 
 function renderAllCats(){
@@ -853,9 +860,17 @@ function renderSeznam(){
     getCategories().forEach(cat=>{
       const btn=document.createElement('button');
       const isActive=window._activeCat===cat;
-      btn.style.cssText=`padding:5px 10px;border-radius:20px;border:1px solid ${isActive?'var(--accent)':'var(--border2)'};background:${isActive?'var(--accent)':'var(--surface)'};color:${isActive?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;`;
+      btn.style.cssText=`padding:5px 10px;border-radius:20px;border:1px solid ${isActive?'var(--accent-dark)':'var(--border2)'};background:${isActive?'var(--accent-dark)':'var(--surface)'};color:${isActive?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;font-weight:${isActive?'600':'400'};`;
       btn.textContent=(catEmoji[cat]||'📌')+' '+cat;
-      btn.onclick=()=>{window._activeCat=cat;renderSeznam();};
+      btn.onclick=()=>{
+        window._activeCat=cat;
+        renderSeznam();
+        // Scroll to selected cat content
+        setTimeout(()=>{
+          const el=document.getElementById('seznamList');
+          if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+        },50);
+      };
       picker.appendChild(btn);
     });
   }
@@ -904,24 +919,29 @@ function renderSeznam(){
       row.style.cssText='border:none;border-radius:0;margin-bottom:0;';
       row.draggable=true;row.dataset.idx=idx;
       row.innerHTML=`
-        <span class="drag-handle">≡</span>
         <div class="seznam-item-name">${escHtml(item.name)}</div>
         <button onclick="toggleCatPicker(${idx})" style="border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;">📂</button>
         <button class="del-btn" onclick="deleteItem(${idx})">×</button>
       `;
       const catPickerDiv=document.createElement('div');
       catPickerDiv.id='catpicker-'+idx;
-      catPickerDiv.style.cssText='display:none;padding:8px 12px 10px;flex-wrap:wrap;gap:5px;border-top:1px solid var(--border);';
+      catPickerDiv.style.cssText='display:none;padding:8px 12px 12px;flex-direction:column;gap:8px;border-top:1px solid var(--border);background:var(--bg);';
+      const label=document.createElement('div');
+      label.style.cssText='font-size:12px;color:var(--text2);font-weight:500;';
+      label.textContent='Izberi področje kamor želiš premestiti artikel:';
+      catPickerDiv.appendChild(label);
+      const btnsDiv=document.createElement('div');
+      btnsDiv.style.cssText='display:flex;flex-wrap:wrap;gap:5px;';
       getCategories().forEach(c=>{
         const btn=document.createElement('button');
         btn.textContent=c;
         btn.style.cssText=`padding:4px 9px;border-radius:20px;border:1px solid var(--border2);background:${c===item.cat?'var(--accent)':'transparent'};color:${c===item.cat?'#fff':'var(--text2)'};font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;`;
         btn.onclick=()=>{items[idx].cat=c;save();renderSeznam();};
-        catPickerDiv.appendChild(btn);
+        btnsDiv.appendChild(btn);
       });
+      catPickerDiv.appendChild(btnsDiv);
       card.appendChild(row);
       card.appendChild(catPickerDiv);
-      setupDrag(row);
       container.appendChild(card);
     });
 
