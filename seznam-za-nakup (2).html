@@ -164,45 +164,63 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 </div>
 
 <!-- UREJANJE -->
-<div id="view-seznam" class="view">
-  <div style="display:flex;gap:4px;margin-bottom:14px;background:var(--bg);border-radius:var(--radius-sm);padding:3px;">
-    <button class="subtab active" id="subtab-podroca" onclick="showSubtab('podroca')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text);">📂 Področja</button>
-    <button class="subtab" id="subtab-artikli" onclick="showSubtab('artikli')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);">📋 Artikli</button>
-    <button class="subtab" id="subtab-trgovine" onclick="showSubtab('trgovine')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);">🏪 Trgovine</button>
-  </div>
+<div id="view-seznam" class="view" style="padding:0;">
 
-  <!-- PODROČJA -->
-  <div id="sub-podroca">
-    <div style="margin-bottom:12px;">
-      <input type="text" id="newCatInput" placeholder="Novo področje (npr. Etnična živila)..." onkeydown="if(event.key==='Enter')addUserCat()" />
-      <button class="btn btn-accent" onclick="addUserCat()" style="width:100%;">+ Dodaj področje</button>
+  <!-- Sticky meni -->
+  <div id="urejanje-menu" style="position:sticky;top:var(--header-h,88px);z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 14px 0;">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;">Izberi kaj želiš urediti:</div>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:0;">
+      <button id="subtab-podroca" onclick="showSubtab('podroca')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);text-align:left;border-bottom:1px solid var(--border);">
+        <span>📂</span><span>Področja</span><span id="subtab-podroca-arrow" style="margin-left:auto;color:var(--text3);">›</span>
+      </button>
+      <button id="subtab-artikli" onclick="showSubtab('artikli')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);text-align:left;border-bottom:1px solid var(--border);">
+        <span>📋</span><span>Artikli</span><span id="subtab-artikli-arrow" style="margin-left:auto;color:var(--text3);">›</span>
+      </button>
+      <button id="subtab-trgovine" onclick="showSubtab('trgovine')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);text-align:left;">
+        <span>🏪</span><span>Trgovine</span><span id="subtab-trgovine-arrow" style="margin-left:auto;color:var(--text3);">›</span>
+      </button>
     </div>
-    <div class="cat-title">Vsa področja</div>
-    <div id="allCatList" style="margin-top:6px;"></div>
   </div>
 
-  <!-- ARTIKLI -->
-  <div id="sub-artikli" style="display:none;">
-    <div style="margin-bottom:12px;">
-      <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
-      <div style="display:flex;gap:8px;">
-        <select id="newItemCat" style="flex:1;"></select>
-        <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
+  <!-- Vsebina -->
+  <div style="padding:14px;">
+
+    <!-- PODROČJA -->
+    <div id="sub-podroca" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <input type="text" id="newCatInput" placeholder="Novo področje (npr. Etnična živila)..." onkeydown="if(event.key==='Enter')addUserCat()" />
+        <button class="btn btn-accent" onclick="addUserCat()" style="width:100%;">+ Dodaj področje</button>
       </div>
+      <div class="cat-title">Vsa področja</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
+      <div id="allCatList" style="margin-top:4px;"></div>
     </div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
-    <div id="seznamList"></div>
-    <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
-  </div>
 
-  <!-- TRGOVINE -->
-  <div id="sub-trgovine" style="display:none;">
-    <div style="margin-bottom:12px;">
-      <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" />
-      <button class="btn btn-accent" onclick="addUserShop()" style="width:100%;">+ Dodaj trgovino</button>
+    <!-- ARTIKLI -->
+    <div id="sub-artikli" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
+        <div style="display:flex;gap:8px;">
+          <select id="newItemCat" style="flex:1;"></select>
+          <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
+      <div id="seznamList"></div>
+      <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
     </div>
-    <div class="cat-title">Vse trgovine</div>
-    <div id="allShopList" style="margin-top:6px;"></div>
+
+    <!-- TRGOVINE -->
+    <div id="sub-trgovine" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" />
+        <button class="btn btn-accent" onclick="addUserShop()" style="width:100%;">+ Dodaj trgovino</button>
+      </div>
+      <div class="cat-title">Vse trgovine</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:8px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
+      <div id="allShopList" style="margin-top:4px;"></div>
+    </div>
+
   </div>
 </div>
 
@@ -237,11 +255,17 @@ const SHOPS=[
 
 function loadUserShops(){try{const s=localStorage.getItem('nakup-user-shops');if(s)return JSON.parse(s);}catch(e){}return[];}
 function saveUserShops(){try{localStorage.setItem('nakup-user-shops',JSON.stringify(userShops));}catch(e){}}
-function getShops(){return[...SHOPS,...userShops];}
+function getShops(){
+  try{const o=localStorage.getItem('nakup-shop-order');if(o)return JSON.parse(o);}catch(e){}
+  return[...SHOPS,...userShops];
+}
 
 function loadUserCats(){try{const s=localStorage.getItem('nakup-user-cats');if(s)return JSON.parse(s);}catch(e){}return[];}
 function saveUserCats(){try{localStorage.setItem('nakup-user-cats',JSON.stringify(userCats));}catch(e){}}
-function getCategories(){return[...CATEGORIES,...userCats];}
+function getCategories(){
+  try{const o=localStorage.getItem('nakup-cat-order');if(o)return JSON.parse(o);}catch(e){}
+  return[...CATEGORIES,...userCats];
+}
 
 let userShops=loadUserShops();
 let userCats=loadUserCats();
@@ -310,7 +334,15 @@ function showView(v){
   if(v==='nakup')renderNakup();
   else if(v==='kosarica')renderKosarica();
   else if(v==='shranjeni')renderShranjeni();
-  else{showSubtab('podroca');}
+  else{
+    ['podroca','artikli','trgovine'].forEach(s=>{
+      document.getElementById('sub-'+s).style.display='none';
+      const btn=document.getElementById('subtab-'+s);
+      if(btn){btn.style.background='transparent';btn.style.color='var(--text2)';}
+      const arrow=document.getElementById('subtab-'+s+'-arrow');
+      if(arrow)arrow.textContent='›';
+    });
+  }
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -647,8 +679,16 @@ function showSubtab(t){
   ['podroca','artikli','trgovine'].forEach(s=>{
     document.getElementById('sub-'+s).style.display=s===t?'block':'none';
     const btn=document.getElementById('subtab-'+s);
-    btn.style.background=s===t?'var(--surface)':'transparent';
-    btn.style.color=s===t?'var(--text)':'var(--text2)';
+    const arrow=document.getElementById('subtab-'+s+'-arrow');
+    if(s===t){
+      btn.style.background=t==='podroca'?'#e8f2ec':t==='artikli'?'#f0f4ff':'#fff8f0';
+      btn.style.color=t==='podroca'?'var(--accent)':t==='artikli'?'#0050a0':'#e87722';
+      if(arrow)arrow.textContent='▾';
+    } else {
+      btn.style.background='transparent';
+      btn.style.color='var(--text2)';
+      if(arrow)arrow.textContent='›';
+    }
   });
   if(t==='artikli')renderSeznam();
   if(t==='podroca')renderAllCats();
@@ -661,9 +701,70 @@ function renderAllCats(){
   getCategories().forEach((cat,i)=>{
     const isUser=i>=CATEGORIES.length;
     const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;';
-    row.innerHTML=`<span style="flex:1;font-size:14px;">${escHtml(cat)}</span>${isUser?`<button onclick="userCats.splice(${i-CATEGORIES.length},1);saveUserCats();renderAllCats();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
+    row.className='seznam-item';
+    row.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;display:flex;align-items:center;gap:10px;';
+    row.draggable=true;
+    row.dataset.catIdx=i;
+    setupCatDrag(row);
+    row.innerHTML=`<span class="drag-handle">≡</span><span style="flex:1;font-size:14px;${!isUser?'color:var(--text2);':''}">${escHtml(cat)}</span>${isUser?`<button onclick="event.stopPropagation();userCats.splice(${i-CATEGORIES.length},1);saveUserCats();renderAllCats();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
     c.appendChild(row);
+  });
+}
+
+function setupCatDrag(el){
+  // Desktop drag
+  el.addEventListener('dragstart',e=>{window._dragCat=parseInt(el.dataset.catIdx);setTimeout(()=>el.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragend',()=>{el.style.opacity='';document.querySelectorAll('#allCatList .drag-target').forEach(e=>e.classList.remove('drag-target'));});
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-target');});
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-target'));
+  el.addEventListener('drop',e=>{
+    e.preventDefault();el.classList.remove('drag-target');
+    const from=window._dragCat, to=parseInt(el.dataset.catIdx);
+    if(from===null||from===to)return;
+    const all=getCategories();
+    const moved=all.splice(from,1)[0];all.splice(to,0,moved);
+    try{localStorage.setItem('nakup-cat-order',JSON.stringify(all));}catch(e){}
+    renderAllCats();
+  });
+  // Touch drag
+  const handle=el.querySelector('.drag-handle');
+  if(!handle)return;
+  handle.addEventListener('touchstart',e=>{
+    window._touchCatIdx=parseInt(el.dataset.catIdx);
+    window._touchCatY=e.touches[0].clientY;
+    el.style.opacity='0.4';
+  },{passive:true});
+  handle.addEventListener('touchmove',e=>{
+    if(window._touchCatIdx===null&&window._touchCatIdx!==0)return;
+    e.preventDefault();
+    const y=e.touches[0].clientY;
+    const els=[...document.querySelectorAll('#allCatList .seznam-item')];
+    els.forEach(r=>r.style.borderTop='');
+    // Find insertion point
+    let insertBefore=null;
+    for(let i=0;i<els.length;i++){
+      const r=els[i].getBoundingClientRect();
+      if(y<r.top+r.height/2){insertBefore=i;break;}
+    }
+    if(insertBefore!==null&&insertBefore!==window._touchCatIdx){
+      els[insertBefore].style.borderTop='2px solid var(--accent)';
+    }
+    window._touchCatInsert=insertBefore;
+  },{passive:false});
+  handle.addEventListener('touchend',()=>{
+    const from=window._touchCatIdx;
+    let to=window._touchCatInsert;
+    el.style.opacity='';
+    document.querySelectorAll('#allCatList .seznam-item').forEach(r=>r.style.borderTop='');
+    if(from!==null&&to!==null&&from!==to){
+      const all=getCategories();
+      const moved=all.splice(from,1)[0];
+      if(to>from)to--;
+      all.splice(to,0,moved);
+      try{localStorage.setItem('nakup-cat-order',JSON.stringify(all));}catch(e){}
+    }
+    window._touchCatIdx=null;window._touchCatInsert=null;
+    renderAllCats();
   });
 }
 
@@ -673,9 +774,68 @@ function renderAllShops(){
   getShops().forEach((shop,i)=>{
     const isUser=i>=SHOPS.length;
     const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;';
-    row.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;background:${shop.color};flex-shrink:0;display:inline-block;"></span><span style="flex:1;font-size:14px;">${escHtml(shop.name)}</span>${isUser?`<button onclick="userShops.splice(${i-SHOPS.length},1);saveUserShops();renderAllShops();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
+    row.className='seznam-item';
+    row.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;display:flex;align-items:center;gap:10px;';
+    row.draggable=true;
+    row.dataset.shopIdx=i;
+    setupShopDrag(row);
+    row.innerHTML=`<span class="drag-handle">≡</span><span style="width:10px;height:10px;border-radius:50%;background:${shop.color};flex-shrink:0;display:inline-block;"></span><span style="flex:1;font-size:14px;${!isUser?'color:var(--text2);':''}">${escHtml(shop.name)}</span>${isUser?`<button onclick="event.stopPropagation();userShops.splice(${i-SHOPS.length},1);saveUserShops();renderAllShops();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
     c.appendChild(row);
+  });
+}
+
+function setupShopDrag(el){
+  // Desktop drag
+  el.addEventListener('dragstart',e=>{window._dragShop=parseInt(el.dataset.shopIdx);setTimeout(()=>el.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragend',()=>{el.style.opacity='';document.querySelectorAll('#allShopList .drag-target').forEach(e=>e.classList.remove('drag-target'));});
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-target');});
+  el.addEventListener('dragleave',()=>el.classList.remove('drag-target'));
+  el.addEventListener('drop',e=>{
+    e.preventDefault();el.classList.remove('drag-target');
+    const from=window._dragShop, to=parseInt(el.dataset.shopIdx);
+    if(from===null||from===to)return;
+    const all=getShops();
+    const moved=all.splice(from,1)[0];all.splice(to,0,moved);
+    try{localStorage.setItem('nakup-shop-order',JSON.stringify(all));}catch(e){}
+    renderAllShops();
+  });
+  // Touch drag
+  const handle=el.querySelector('.drag-handle');
+  if(!handle)return;
+  handle.addEventListener('touchstart',e=>{
+    window._touchShopIdx=parseInt(el.dataset.shopIdx);
+    el.style.opacity='0.4';
+  },{passive:true});
+  handle.addEventListener('touchmove',e=>{
+    if(window._touchShopIdx===null&&window._touchShopIdx!==0)return;
+    e.preventDefault();
+    const y=e.touches[0].clientY;
+    const els=[...document.querySelectorAll('#allShopList .seznam-item')];
+    els.forEach(r=>r.style.borderTop='');
+    let insertBefore=null;
+    for(let i=0;i<els.length;i++){
+      const r=els[i].getBoundingClientRect();
+      if(y<r.top+r.height/2){insertBefore=i;break;}
+    }
+    if(insertBefore!==null&&insertBefore!==window._touchShopIdx){
+      els[insertBefore].style.borderTop='2px solid var(--accent)';
+    }
+    window._touchShopInsert=insertBefore;
+  },{passive:false});
+  handle.addEventListener('touchend',()=>{
+    const from=window._touchShopIdx;
+    let to=window._touchShopInsert;
+    el.style.opacity='';
+    document.querySelectorAll('#allShopList .seznam-item').forEach(r=>r.style.borderTop='');
+    if(from!==null&&to!==null&&from!==to){
+      const all=getShops();
+      const moved=all.splice(from,1)[0];
+      if(to>from)to--;
+      all.splice(to,0,moved);
+      try{localStorage.setItem('nakup-shop-order',JSON.stringify(all));}catch(e){}
+    }
+    window._touchShopIdx=null;window._touchShopInsert=null;
+    renderAllShops();
   });
 }
 
