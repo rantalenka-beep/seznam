@@ -165,38 +165,52 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
 <!-- UREJANJE -->
 <div id="view-seznam" class="view">
-  <div style="margin-bottom:12px;">
-    <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
-    <div style="display:flex;gap:8px;">
-      <select id="newItemCat">
-        <option value="Sadje">🍎 Sadje</option>
-        <option value="Zelenjava">🥦 Zelenjava</option>
-        <option value="Jajca in mlečni">🥛 Jajca in mlečni</option>
-        <option value="Pekarna">🍞 Pekarna</option>
-        <option value="Suha živila">🫘 Suha živila</option>
-        <option value="Zamrznjeno">❄️ Zamrznjeno</option>
-        <option value="Začimbe in omake">🧂 Začimbe in omake</option>
-        <option value="Dodatki za peko">🎂 Dodatki za peko</option>
-        <option value="Pijače">🧃 Pijače</option>
-        <option value="Sladkarije">🍫 Sladkarije</option>
-        <option value="Osebna nega">🧴 Osebna nega</option>
-        <option value="Čistila">🧹 Čistila</option>
-        <option value="Ostalo">📦 Ostalo</option>
-      </select>
-      <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
-    </div>
+  <div style="display:flex;gap:4px;margin-bottom:14px;background:var(--bg);border-radius:var(--radius-sm);padding:3px;">
+    <button class="subtab active" id="subtab-podroca" onclick="showSubtab('podroca')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text);">📂 Področja</button>
+    <button class="subtab" id="subtab-artikli" onclick="showSubtab('artikli')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);">📋 Artikli</button>
+    <button class="subtab" id="subtab-trgovine" onclick="showSubtab('trgovine')" style="flex:1;padding:7px;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);">🏪 Trgovine</button>
   </div>
-  <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
-  <div id="seznamList"></div>
-  <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
+
+  <!-- PODROČJA -->
+  <div id="sub-podroca">
+    <div style="margin-bottom:12px;">
+      <input type="text" id="newCatInput" placeholder="Novo področje (npr. Etnična živila)..." onkeydown="if(event.key==='Enter')addUserCat()" />
+      <button class="btn btn-accent" onclick="addUserCat()" style="width:100%;">+ Dodaj področje</button>
+    </div>
+    <div class="cat-title">Vsa področja</div>
+    <div id="allCatList" style="margin-top:6px;"></div>
+  </div>
+
+  <!-- ARTIKLI -->
+  <div id="sub-artikli" style="display:none;">
+    <div style="margin-bottom:12px;">
+      <input type="text" id="newItemInput" placeholder="Nov artikel..." onkeydown="if(event.key==='Enter')addItem()"/>
+      <div style="display:flex;gap:8px;">
+        <select id="newItemCat" style="flex:1;"></select>
+        <button class="btn btn-accent" onclick="addItem()" style="white-space:nowrap;">+ Dodaj</button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px;padding-left:2px;">Drži ≡ in povleci za premikanje</p>
+    <div id="seznamList"></div>
+    <div id="seznamEmpty" class="empty-state" style="display:none;"><div class="icon">✏️</div><p>Še ni artiklov.</p></div>
+  </div>
+
+  <!-- TRGOVINE -->
+  <div id="sub-trgovine" style="display:none;">
+    <div style="margin-bottom:12px;">
+      <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" />
+      <button class="btn btn-accent" onclick="addUserShop()" style="width:100%;">+ Dodaj trgovino</button>
+    </div>
+    <div class="cat-title">Vse trgovine</div>
+    <div id="allShopList" style="margin-top:6px;"></div>
+  </div>
 </div>
 
 <div class="bottom-bar active" id="bottomBar-nakup">
-  <button class="btn" onclick="showView('kosarica')">🛒 Košarica</button>
-  <button class="btn btn-accent" onclick="potrdiOdznaci()">Počisti</button>
+  <button class="btn" onclick="potrdiOdznaci()" style="color:var(--text2);">Počisti</button>
+  <button class="btn btn-accent" onclick="showView('kosarica')">🛒 Košarica</button>
 </div>
 <div class="bottom-bar" id="bottomBar-kosarica">
-  <button class="btn btn-share" onclick="deliSeznam('vse')">📤 Deli</button>
   <button class="btn" onclick="shraniSeznam()" style="color:#0050a0;border-color:rgba(0,80,160,0.3);">💾 Shrani</button>
   <button class="btn btn-accent" onclick="novListek()">✓ Počisti</button>
 </div>
@@ -220,6 +234,17 @@ const SHOPS=[
   {id:'tus',name:'Tuš',color:'#e87722'},
   {id:'muller',name:'Müller',color:'#d4002a'},
 ];
+
+function loadUserShops(){try{const s=localStorage.getItem('nakup-user-shops');if(s)return JSON.parse(s);}catch(e){}return[];}
+function saveUserShops(){try{localStorage.setItem('nakup-user-shops',JSON.stringify(userShops));}catch(e){}}
+function getShops(){return[...SHOPS,...userShops];}
+
+function loadUserCats(){try{const s=localStorage.getItem('nakup-user-cats');if(s)return JSON.parse(s);}catch(e){}return[];}
+function saveUserCats(){try{localStorage.setItem('nakup-user-cats',JSON.stringify(userCats));}catch(e){}}
+function getCategories(){return[...CATEGORIES,...userCats];}
+
+let userShops=loadUserShops();
+let userCats=loadUserCats();
 
 const CATEGORIES=["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Suha živila","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije","Osebna nega","Čistila","Ostalo"];
 
@@ -285,12 +310,12 @@ function showView(v){
   if(v==='nakup')renderNakup();
   else if(v==='kosarica')renderKosarica();
   else if(v==='shranjeni')renderShranjeni();
-  else renderSeznam();
+  else{showSubtab('podroca');}
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function getShopColor(id){return(SHOPS.find(s=>s.id===id)||{}).color||'#999';}
-function getShopName(id){return(SHOPS.find(s=>s.id===id)||{}).name||id;}
+function getShopColor(id){return(getShops().find(s=>s.id===id)||{}).color||'#999';}
+function getShopName(id){return(getShops().find(s=>s.id===id)||{}).name||id;}
 function checkSvg(){return`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
 function renderNakup(){
@@ -391,17 +416,17 @@ function renderNakup(){
       if(item.checked){
         const picker=document.createElement('div');
         picker.className='shop-picker open';
-        const main5=SHOPS.slice(0,5);
-        const rest=SHOPS.slice(5);
-        const mainBtns=main5.map(s=>{
+        const allShops=getShops();
+        const main5=allShops.slice(0,5);
+        const rest=allShops.slice(5);
+        const renderShopBtn=(s)=>{
           const sel=item.shops&&item.shops.includes(s.id);
-          return`<button class="shop-btn${sel?' selected':''}" style="border-color:${s.color};color:${sel?'#fff':s.color};background:${sel?s.color:'transparent'};" onclick="toggleShop(${idx},'${s.id}')">${s.name}</button>`;
-        }).join('');
-        const restBtns=rest.map(s=>{
-          const sel=item.shops&&item.shops.includes(s.id);
-          return`<button class="shop-btn${sel?' selected':''}" style="border-color:${s.color};color:${sel?'#fff':s.color};background:${sel?s.color:'transparent'};" onclick="toggleShop(${idx},'${s.id}')">${s.name}</button>`;
-        }).join('');
-        picker.innerHTML=`<div class="shop-btns">${mainBtns}</div>${rest.length?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">${restBtns}</div>`:''}`;
+          return`<button class="shop-btn${sel?' selected':''}" style="border-color:var(--border2);color:${sel?'#fff':' var(--text2)'};background:${sel?s.color:'transparent'};" onclick="toggleShop(${idx},'${s.id}')">${s.name}</button>`;
+        };
+        const mainBtns=main5.map(renderShopBtn).join('');
+        const restBtns=rest.map(renderShopBtn).join('');
+        const moreId='more-'+idx;
+        picker.innerHTML=`<div class="shop-btns">${mainBtns}${rest.length?`<button id="${moreId}" onclick="var e=document.getElementById('rest-${idx}');e.style.display=e.style.display==='flex'?'none':'flex';this.textContent=e.style.display==='flex'?'Manj ▴':'Več ▾'" style="border-color:var(--border2);color:var(--text2);background:transparent;padding:4px 9px;border-radius:20px;border:1.5px solid;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">Več ▾</button>`:''}</div>${rest.length?`<div id="rest-${idx}" style="display:none;flex-wrap:wrap;gap:5px;margin-top:5px;">${restBtns}</div>`:''}`;
         card.appendChild(picker);
       }
       container.appendChild(card);
@@ -474,7 +499,7 @@ function renderKosarica(){
   if(checked.length){
     const allHdr=document.createElement('div');
     allHdr.className='shop-section-hdr';
-    allHdr.innerHTML=`<div class="shop-section-bar" style="background:var(--accent);"></div><div class="shop-section-name" style="color:var(--accent);">Skupni seznam</div>`;
+    allHdr.innerHTML=`<div class="shop-section-bar" style="background:var(--accent);"></div><div class="shop-section-name" style="color:var(--accent);">Skupni seznam</div><button class="btn" onclick="deliSeznam('vse')" style="margin-left:auto;padding:4px 9px;font-size:11px;color:var(--accent);border-color:rgba(61,122,79,0.3);">📤 Deli</button>`;
     container.appendChild(allHdr);
 
     CATEGORIES.forEach(cat=>{
@@ -515,7 +540,7 @@ function renderKosarica(){
   }
 
   // Po trgovinah
-  SHOPS.forEach(shop=>{
+  getShops().forEach(shop=>{
     const shopItems=checked.filter(i=>i.shops&&i.shops.includes(shop.id));
     if(!shopItems.length)return;
     const hdr=document.createElement('div');
@@ -539,8 +564,15 @@ function renderKosarica(){
       row.innerHTML=`<span style="${item.done?'text-decoration:line-through;opacity:0.5;':''};flex:1;">${escHtml(item.name)}</span><button onclick="extraItems[${idx}].done=!extraItems[${idx}].done;renderKosarica();" style="border:none;background:transparent;color:${shop.color};font-size:12px;cursor:pointer;">${item.done?'↩':'✓'}</button><button onclick="extraItems.splice(${idx},1);renderKosarica();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`;
       container.appendChild(row);
     });
+    // Dodaj iz seznama
+    const dodajBtn=document.createElement('button');
+    dodajBtn.style.cssText=`width:100%;margin-top:5px;padding:7px;border:1.5px dashed ${shop.color}40;border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;`;
+    dodajBtn.textContent='+ Dodaj iz seznama';
+    dodajBtn.onclick=()=>showView('nakup');
+    container.appendChild(dodajBtn);
+    // Ročno dodaj
     const addRow=document.createElement('div');
-    addRow.style.cssText='display:flex;gap:6px;margin-top:5px;';
+    addRow.style.cssText='display:flex;gap:6px;margin-top:4px;';
     addRow.innerHTML=`<input type="text" id="shopInput-${shop.id}" placeholder="Ročno dodaj za ${shop.name}..." onkeydown="if(event.key==='Enter')addShopExtra('${shop.id}')" style="margin-bottom:0;font-size:12px;padding:7px 10px;border-color:${shop.color}40;"/><button onclick="addShopExtra('${shop.id}')" style="padding:7px 11px;border:1.5px solid ${shop.color};border-radius:var(--radius-sm);background:transparent;color:${shop.color};font-size:13px;font-weight:600;cursor:pointer;">+</button>`;
     container.appendChild(addRow);
   });
@@ -589,7 +621,80 @@ function addShopExtra(shopId){
   showToast('Dodano: '+name);
 }
 
+function addUserCat(){
+  const inp=document.getElementById('newCatInput');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(getCategories().includes(name)){showToast('Ta kategorija že obstaja');return;}
+  userCats.push(name);saveUserCats();inp.value='';
+  renderAllCats();showToast('Področje dodano: '+name);
+}
+
+function addUserShop(){
+  const inp=document.getElementById('newShopInput');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(getShops().find(s=>s.name.toLowerCase()===name.toLowerCase())){showToast('Ta trgovina že obstaja');return;}
+  const id='user-'+Date.now();
+  const colors=['#7b2d8b','#1a6b4a','#b35c00','#005b8e','#444'];
+  const color=colors[userShops.length%colors.length];
+  userShops.push({id,name,color});
+  saveUserShops();inp.value='';
+  renderAllShops();showToast('Trgovina dodana: '+name);
+}
+
+function showSubtab(t){
+  ['podroca','artikli','trgovine'].forEach(s=>{
+    document.getElementById('sub-'+s).style.display=s===t?'block':'none';
+    const btn=document.getElementById('subtab-'+s);
+    btn.style.background=s===t?'var(--surface)':'transparent';
+    btn.style.color=s===t?'var(--text)':'var(--text2)';
+  });
+  if(t==='artikli')renderSeznam();
+  if(t==='podroca')renderAllCats();
+  if(t==='trgovine')renderAllShops();
+}
+
+function renderAllCats(){
+  const c=document.getElementById('allCatList');
+  if(!c)return;c.innerHTML='';
+  getCategories().forEach((cat,i)=>{
+    const isUser=i>=CATEGORIES.length;
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;';
+    row.innerHTML=`<span style="flex:1;font-size:14px;">${escHtml(cat)}</span>${isUser?`<button onclick="userCats.splice(${i-CATEGORIES.length},1);saveUserCats();renderAllCats();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
+    c.appendChild(row);
+  });
+}
+
+function renderAllShops(){
+  const c=document.getElementById('allShopList');
+  if(!c)return;c.innerHTML='';
+  getShops().forEach((shop,i)=>{
+    const isUser=i>=SHOPS.length;
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:5px;';
+    row.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;background:${shop.color};flex-shrink:0;display:inline-block;"></span><span style="flex:1;font-size:14px;">${escHtml(shop.name)}</span>${isUser?`<button onclick="userShops.splice(${i-SHOPS.length},1);saveUserShops();renderAllShops();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
+    c.appendChild(row);
+  });
+}
+
 function renderSeznam(){
+  // Napolni select s kategorijami
+  const sel=document.getElementById('newItemCat');
+  if(sel){
+    const cur=sel.value;
+    sel.innerHTML='';
+    const catEmoji={'Sadje':'🍎','Zelenjava':'🥦','Jajca in mlečni':'🥛','Pekarna':'🍞','Suha živila':'🫘','Zamrznjeno':'❄️','Začimbe in omake':'🧂','Dodatki za peko':'🎂','Pijače':'🧃','Sladkarije':'🍫','Osebna nega':'🧴','Čistila':'🧹','Ostalo':'📦'};
+    getCategories().forEach(cat=>{
+      const opt=document.createElement('option');
+      opt.value=cat;
+      opt.textContent=(catEmoji[cat]||'📌')+' '+cat;
+      if(cat===cur)opt.selected=true;
+      sel.appendChild(opt);
+    });
+  }
+  renderAllCats();
   const container=document.getElementById('seznamList');
   const empty=document.getElementById('seznamEmpty');
   container.innerHTML='';
