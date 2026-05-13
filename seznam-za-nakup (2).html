@@ -166,8 +166,8 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 <!-- UREJANJE -->
 <div id="view-seznam" class="view" style="padding:0;">
 
-  <!-- Sticky meni -->
-  <div id="urejanje-menu" style="position:sticky;top:var(--header-h,88px);z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 14px 0;">
+  <!-- Meni -->
+  <div id="urejanje-menu" style="background:var(--surface);border-bottom:1px solid var(--border);padding:14px 14px 0;">
     <div style="font-size:13px;color:var(--text3);margin-bottom:10px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;">Izberi kaj želiš urediti:</div>
     <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:0;">
       <button id="subtab-podroca" onclick="showSubtab('podroca')" style="display:flex;align-items:center;gap:10px;padding:11px 12px;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);text-align:left;border-bottom:1px solid var(--border);">
@@ -187,6 +187,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- PODROČJA -->
     <div id="sub-podroca" style="display:none;">
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:14px;color:var(--text);">Urejanje področij</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <input type="text" id="newCatInput" placeholder="Novo področje (npr. Oreščki)..." onkeydown="if(event.key==='Enter')addUserCat()" style="margin-bottom:0;flex:1;"/>
         <button onclick="addUserCat()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
@@ -198,6 +199,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- ARTIKLI -->
     <div id="sub-artikli" style="display:none;">
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:14px;color:var(--text);">Urejanje artiklov</div>
       <div class="cat-title" style="margin-bottom:4px;">Izberi področje, pri katerem želiš dodati artikel:</div>
       <div id="artCatPicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
       <div style="margin-bottom:10px;background:var(--accent-light);border:1px solid rgba(61,122,79,0.2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--accent-dark);">💡 Za premikanje artiklov: dolgo pritisni in povleci na željeno mesto.</div>
@@ -207,6 +209,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
     <!-- TRGOVINE -->
     <div id="sub-trgovine" style="display:none;">
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:14px;color:var(--text);">Urejanje tvojih trgovin</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <input type="text" id="newShopInput" placeholder="Nova trgovina (npr. Kam)..." onkeydown="if(event.key==='Enter')addUserShop()" style="margin-bottom:0;flex:1;"/>
         <button onclick="addUserShop()" style="padding:10px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;line-height:1;">+</button>
@@ -718,7 +721,7 @@ function renderAllCats(){
     row.draggable=true;
     row.dataset.catIdx=i;
     setupCatDrag(row);
-    row.innerHTML=`<span class="drag-handle">≡</span><span style="flex:1;font-size:14px;${!isUser?'color:var(--text2);':''}">${escHtml(cat)}</span>${isUser?`<button onclick="event.stopPropagation();userCats.splice(${i-CATEGORIES.length},1);saveUserCats();renderAllCats();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
+    row.innerHTML=`<span style="flex:1;font-size:14px;${!isUser?'color:var(--text2);':''}">${escHtml(cat)}</span>${isUser?`<button onclick="event.stopPropagation();userCats.splice(${i-CATEGORIES.length},1);saveUserCats();renderAllCats();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;">×</button>`:'<span style="font-size:11px;color:var(--text3);">privzeto</span>'}`;
     c.appendChild(row);
   });
 }
