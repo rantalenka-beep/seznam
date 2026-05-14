@@ -106,12 +106,11 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
       <button class="search-clear" id="searchClear" onclick="document.getElementById('searchInput').value='';renderNakup();" style="display:none;">×</button>
     </div>
     <div id="catBar" style="display:flex;gap:5px;flex-wrap:wrap;padding-bottom:2px;margin-top:6px;"></div>
+    <div id="dodajZaTrgovinoBanner" style="display:none;margin-top:6px;"></div>
   </div>
   <div style="height:8px;"></div>
-  <div id="dodajZaTrgovinoBanner" style="display:none;margin-bottom:10px;"></div>
   <div id="listek-tip-banner" style="display:none;margin-bottom:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;justify-content:space-between;">
     <span id="listek-tip-banner-text"></span>
-    <button onclick="setListekTip('splosno');renderNakup();" style="border:none;background:transparent;font-size:12px;color:inherit;cursor:pointer;opacity:0.7;text-decoration:underline;">Splošen</button>
   </div>
   <div id="nakupList"></div>
   <div id="nakupEmpty" class="empty-state" style="display:none;">
@@ -128,19 +127,11 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
 <!-- LISTEK -->
 <div id="view-kosarica" class="view">
-
-  <!-- Ustvarjanje novega listka -->
   <div style="border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:14px;">
-    <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px;">Ustvari nov listek:</div>
-    <button onclick="setListekTip('splosno');showView('nakup')" style="width:100%;padding:13px 14px;margin-bottom:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;">
-      <span>🛒</span><span style="flex:1;">Ustvari splošen nakupovalni listek</span><span style="opacity:0.8;">›</span>
-    </button>
-    <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Ali za določeno trgovino:</div>
+    <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Izberi trgovino za nakup:</div>
     <div id="listek-tip-bar"></div>
   </div>
-
-  <!-- Trenutni seznam -->
-  <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px;">Trenutni seznam:</div>
+  <div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px;">Trenutni seznami:</div>
   <div id="kosaricaList"></div>
   <div id="kosaricaEmpty" class="empty-state" style="display:none;">
     <div class="icon">🧺</div>
@@ -266,6 +257,7 @@ let savedLists=loadSaved();
 let freq=loadFreq();
 let _urediMode=false;
 let _aktivnoPodrocje=null;
+let _vsaPodrocja=false;
 
 function save(){try{localStorage.setItem('nakup-v6',JSON.stringify(items));}catch(e){}}
 function saveSaved(){try{localStorage.setItem('nakup-saved',JSON.stringify(savedLists));}catch(e){}}
@@ -309,7 +301,7 @@ function showView(v){
   if(barEl)barEl.classList.add('active');
   const tabEl=document.getElementById('tab-'+v);
   if(tabEl)tabEl.classList.add('active');
-  if(v==='nakup'){renderNakup();}
+  if(v==='nakup'){_aktivnoPodrocje=null;_vsaPodrocja=false;renderNakup();}
   else if(v==='kosarica'){window._dodajZaTrgovino=null;renderListekTipBar();renderKosarica();}
   else if(v==='shranjeni')renderShranjeni();
 }
@@ -344,8 +336,8 @@ function renderNakup(){
     const shop=isSkupni?null:getShops().find(s=>s.id===window._dodajZaTrgovino);
     if(bannerEl){
       bannerEl.style.display='flex';
-      bannerEl.style.cssText=`display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:9px 12px;background:${isSkupni?'#e8f2ec':shop?shop.color+'15':'#e8f2ec'};border:1px solid ${isSkupni?'rgba(61,122,79,0.3)':shop?shop.color+'40':'rgba(61,122,79,0.3)'};border-radius:var(--radius-sm);font-size:13px;color:${isSkupni?'var(--accent-dark)':shop?shop.color:'var(--accent-dark)'};`;
-      bannerEl.innerHTML=`<span style="flex:1;">Označuješ artikle za <strong>${isSkupni?'skupni seznam':shop?shop.name:'listek'}</strong> — tapni artikel za dodajanje</span><button onclick="window._dodajZaTrgovino=null;renderNakup();" style="border:none;background:transparent;color:inherit;font-size:16px;cursor:pointer;">×</button>`;
+      bannerEl.style.cssText=`display:flex;align-items:center;gap:8px;margin-top:6px;padding:8px 12px;background:${isSkupni?'#e8f2ec':shop?shop.color+'15':'#e8f2ec'};border:1px solid ${isSkupni?'rgba(61,122,79,0.3)':shop?shop.color+'40':'rgba(61,122,79,0.3)'};border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:${isSkupni?'var(--accent-dark)':shop?shop.color:'var(--accent-dark)'};`;
+      bannerEl.innerHTML=`<span style="flex:1;">Izberi artikle za nakup v trgovini <strong>${isSkupni?'skupni seznam':shop?shop.name:'listek'}</strong></span><button onclick="window._dodajZaTrgovino=null;renderNakup();" style="border:none;background:transparent;color:inherit;font-size:16px;cursor:pointer;">×</button>`;
     }
   } else if(window._dodajVShranjenIdx!==null&&window._dodajVShranjenIdx!==undefined){
     const s=savedLists[window._dodajVShranjenIdx];
@@ -359,13 +351,14 @@ function renderNakup(){
   }
   const container=document.getElementById('nakupList');
   const empty=document.getElementById('nakupEmpty');
-  const searchVal=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+  const searchInpEl=document.getElementById('searchInput');
+  const searchVal=searchInpEl?(searchInpEl.value||'').toLowerCase().trim():'';
   const clearBtn=document.getElementById('searchClear');
-  clearBtn.style.display=searchVal?'block':'none';
+  if(clearBtn)clearBtn.style.display=searchVal?'block':'none';
 
   // Set sticky offset
-  const hh=document.querySelector('header').offsetHeight;
-  document.documentElement.style.setProperty('--header-h', hh+'px');
+  const headerEl=document.querySelector('header');
+  if(headerEl)document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight+'px');
 
   container.innerHTML='';
 
@@ -376,6 +369,7 @@ function renderNakup(){
     const activeCats=getCategories().filter(cat=>items.some(i=>i.cat===cat)||userCats.includes(cat));
     const urediPodrocja=window._urediPodrocja||false;
 
+    const VIDNIH=6;
     activeCats.forEach((cat,ci)=>{
       const isActive=_aktivnoPodrocje===cat;
 
@@ -460,8 +454,28 @@ function renderNakup(){
         });
       }
 
+      // Skrij območja za VIDNIH (razen aktivnega)
+      if(ci>=VIDNIH && cat!==_aktivnoPodrocje && !window._vsaPodrocja){
+        pill.style.display='none';
+        pill.dataset.skrito='1';
+      }
+
       catBar.appendChild(pill);
     });
+
+    // Gumb Več / Manj
+    const hasSkritih=activeCats.length>VIDNIH;
+    if(hasSkritih){
+      const vecBtn=document.createElement('button');
+      const skritih=activeCats.filter((_,i)=>i>=VIDNIH).length;
+      vecBtn.textContent=window._vsaPodrocja?'Manj ▴':`Več (${skritih}) ▾`;
+      vecBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--text2);cursor:pointer;white-space:nowrap;';
+      vecBtn.onclick=()=>{
+        window._vsaPodrocja=!window._vsaPodrocja;
+        renderNakup();
+      };
+      catBar.appendChild(vecBtn);
+    }
 
     // Gumbi na koncu
     if(!urediPodrocja){
@@ -527,7 +541,7 @@ function renderNakup(){
       banner.style.background=shop?shop.color+'18':'var(--accent-light)';
       banner.style.color=shop?shop.color:'var(--accent-dark)';
       banner.style.border=`1px solid ${shop?shop.color+'40':'rgba(61,122,79,0.2)'}`;
-      bannerText.textContent=`🛒 Listek za ${shop?shop.name:'?'} — artikli se dodelijo avtomatsko`;
+      bannerText.textContent=`Izberi artikle za nakup v trgovini ${shop?shop.name:'?'}`;
     } else {
       banner.style.display='none';
     }
@@ -571,16 +585,19 @@ function renderNakup(){
     'Ostalo':'#c0c0c0',
   };
 
-  getCategories().forEach((cat,catI)=>{
+  // Aktivno področje na vrhu, ostala sledijo
+  const allCats=getCategories();
+  const sortedCats=(!searchVal&&_aktivnoPodrocje)
+    ?[_aktivnoPodrocje,...allCats.filter(c=>c!==_aktivnoPodrocje)]
+    :allCats;
+
+  sortedCats.forEach((cat,catI)=>{
     let catItems=items.filter(i=>i.cat===cat);
     if(searchVal) catItems=catItems.filter(i=>i.name.toLowerCase().includes(searchVal));
 
     const isThisCatEditing=_urediMode&&_aktivnoPodrocje===cat;
 
-    // Prikaži prazna področja samo v uredi načinu za to področje
     if(!catItems.length&&!isThisCatEditing&&!(_urediMode&&userCats.includes(cat)))return;
-    // Če je izbrano področje, pokaži samo to
-    if(_aktivnoPodrocje&&_aktivnoPodrocje!==cat&&!searchVal)return;
     if(!catItems.length&&!isThisCatEditing)return;
     hasResults=true;
 
@@ -614,11 +631,12 @@ function renderNakup(){
         setTimeout(()=>{
           const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
           if(el){
-            const hh=document.querySelector('header').offsetHeight+8;
-            const top=el.getBoundingClientRect().top+window.scrollY-hh;
+            const headerH=document.querySelector('header')?document.querySelector('header').offsetHeight:88;
+            const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
+            const top=el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4;
             window.scrollTo({top,behavior:'smooth'});
           }
-        },50);
+        },100);
       };
       hdr.appendChild(editCatBtn);
 
@@ -814,110 +832,69 @@ function renderListekTipBar(){
   const bar=document.getElementById('listek-tip-bar');
   if(!bar)return;
   bar.innerHTML='';
-  const urediTrg=window._urediTrgovine||false;
 
-  // Grid gumbov — manjši kvadratni
   const grid=document.createElement('div');
+  grid.id='shopGrid';
   grid.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
 
   getShops().forEach((shop,si)=>{
     const active=listek_tip===shop.id;
     const btn=document.createElement('button');
-    btn.style.cssText=`padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid ${urediTrg?'#e08080':shop.color+'50'};background:${active?shop.color+'18':urediTrg?'#fff5f5':'var(--surface)'};color:${urediTrg?'#c04040':'var(--text)'};font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;`;
-    btn.innerHTML=`${escHtml(shop.name)}`;
+    btn.dataset.si=String(si);
+    btn.draggable=true;
+    btn.style.cssText=`padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid ${shop.color+'50'};background:${active?shop.color+'18':'var(--surface)'};color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;`;
+    btn.textContent=escHtml(shop.name);
+    btn.onclick=()=>{setListekTip(shop.id);showView('nakup');};
 
-    if(urediTrg){
-      const isUser=si>=SHOPS.length;
-      btn.style.cssText=`padding:8px 10px;border-radius:var(--radius-sm);border:1.5px solid ${isUser?'#e08080':'var(--border2)'};background:${isUser?'#fff5f5':'var(--surface)'};color:${isUser?'#c04040':'var(--text3)'};font-size:13px;font-family:'DM Sans',sans-serif;cursor:${isUser?'pointer':'default'};display:flex;align-items:center;gap:6px;white-space:nowrap;`;
-      if(isUser){
-        btn.innerHTML=escHtml(shop.name)+' <span style="font-size:15px;font-weight:600;margin-left:2px;">×</span>';
-        btn.onclick=()=>{
-          // Odstrani obstoječ confirm
-          const old=document.getElementById('shopDelConf');if(old)old.remove();
-          const rect=btn.getBoundingClientRect();
-          const conf=document.createElement('div');
-          conf.id='shopDelConf';
-          conf.style.cssText=`position:fixed;left:${Math.min(rect.left,window.innerWidth-220)}px;top:${rect.top-52}px;background:#fff;border:1.5px solid #e08080;border-radius:var(--radius-sm);padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#c04040;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:300;white-space:nowrap;`;
-          conf.textContent='Izbriši "'+shop.name+'"? ';
-          const daBtn=document.createElement('button');
-          daBtn.textContent='Da';
-          daBtn.style.cssText='padding:4px 12px;background:#c04040;color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-weight:600;';
-          daBtn.onclick=()=>{
-            conf.remove();
-            userShops.splice(si-SHOPS.length,1);
-            saveUserShops();
-            renderListekTipBar();
-            showToast('Trgovina "'+shop.name+'" izbrisana');
-          };
-          const neBtn=document.createElement('button');
-          neBtn.textContent='Ne';
-          neBtn.style.cssText='padding:4px 10px;background:transparent;color:#c04040;border:1px solid #e08080;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;';
-          neBtn.onclick=()=>conf.remove();
-          conf.appendChild(daBtn);conf.appendChild(neBtn);
-          document.body.appendChild(conf);
-          setTimeout(()=>{
-            const cl=(e)=>{if(!conf.contains(e.target)){conf.remove();document.removeEventListener('click',cl);}};
-            document.addEventListener('click',cl);
-          },100);
-        };
-      } else {
-        btn.innerHTML=escHtml(shop.name)+' <span style="font-size:11px;opacity:0.5;">(privzeto)</span>';
-      }
-    } else {
-      btn.onclick=()=>{setListekTip(shop.id);showView('nakup');};
-    }
+    // Drag premikanje
+    btn.addEventListener('dragstart',e=>{window._dragShopBtn=si;setTimeout(()=>btn.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
+    btn.addEventListener('dragend',()=>{btn.style.opacity='1';grid.querySelectorAll('button').forEach(b=>b.style.borderStyle='solid');});
+    btn.addEventListener('dragover',e=>{e.preventDefault();btn.style.borderStyle='dashed';});
+    btn.addEventListener('dragleave',()=>{btn.style.borderStyle='solid';});
+    btn.addEventListener('drop',e=>{
+      e.preventDefault();btn.style.borderStyle='solid';
+      const from=window._dragShopBtn,to=si;
+      if(from==null||from===to)return;
+      const all=getShops();
+      const moved=all.splice(from,1)[0];all.splice(to,0,moved);
+      localStorage.setItem('nakup-shop-order',JSON.stringify(all));
+      renderListekTipBar();
+    });
+
     grid.appendChild(btn);
   });
   bar.appendChild(grid);
 
-  // Gumbi + dodaj in uredi
-  const actRow=document.createElement('div');
-  actRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap;';
-
-  if(!urediTrg){
-    const addBtn=document.createElement('button');
-    addBtn.textContent='+ Dodaj trgovino';
-    addBtn.style.cssText='padding:5px 11px;border:1.5px dashed var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
-    addBtn.onclick=()=>{
-      const existing=document.getElementById('novaTrgovinaPanel');
-      if(existing){existing.remove();return;}
-      const panel=document.createElement('div');
-      panel.id='novaTrgovinaPanel';
-      panel.style.cssText='display:flex;gap:6px;margin-top:6px;width:100%;';
-      const inp=document.createElement('input');
-      inp.type='text';inp.placeholder='Ime nove trgovine...';
-      inp.style.cssText='margin-bottom:0;font-size:13px;flex:1;';
-      const okBtn=document.createElement('button');
-      okBtn.textContent='+';
-      okBtn.style.cssText='padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:16px;cursor:pointer;font-weight:600;';
-      const doAdd=()=>{
-        const n=inp.value.trim();if(!n)return;
-        if(getShops().find(s=>s.name.toLowerCase()===n.toLowerCase())){showToast('Ta trgovina že obstaja');return;}
-        const colors=['#7b2d8b','#1a6b4a','#b35c00','#005b8e','#e87722','#444'];
-        userShops.push({id:'user-'+Date.now(),name:n,color:colors[userShops.length%colors.length]});
-        saveUserShops();panel.remove();renderListekTipBar();showToast('Trgovina dodana: '+n);
-      };
-      inp.onkeydown=(e)=>{if(e.key==='Enter')doAdd();if(e.key==='Escape')panel.remove();};
-      okBtn.onclick=doAdd;
-      panel.appendChild(inp);panel.appendChild(okBtn);
-      bar.appendChild(panel);
-      setTimeout(()=>inp.focus(),50);
+  // Samo + Dodaj trgovino
+  const addBtn=document.createElement('button');
+  addBtn.textContent='+ Dodaj trgovino';
+  addBtn.style.cssText='padding:5px 11px;border:1.5px dashed var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
+  addBtn.onclick=()=>{
+    const existing=document.getElementById('novaTrgovinaPanel');
+    if(existing){existing.remove();return;}
+    const panel=document.createElement('div');
+    panel.id='novaTrgovinaPanel';
+    panel.style.cssText='display:flex;gap:6px;margin-top:6px;width:100%;';
+    const inp=document.createElement('input');
+    inp.type='text';inp.placeholder='Ime nove trgovine...';
+    inp.style.cssText='margin-bottom:0;font-size:13px;flex:1;';
+    const okBtn=document.createElement('button');
+    okBtn.textContent='+';
+    okBtn.style.cssText='padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:16px;cursor:pointer;font-weight:600;';
+    const doAdd=()=>{
+      const n=inp.value.trim();if(!n)return;
+      if(getShops().find(s=>s.name.toLowerCase()===n.toLowerCase())){showToast('Ta trgovina že obstaja');return;}
+      const colors=['#7b2d8b','#1a6b4a','#b35c00','#005b8e','#e87722','#444'];
+      userShops.push({id:'user-'+Date.now(),name:n,color:colors[userShops.length%colors.length]});
+      saveUserShops();panel.remove();renderListekTipBar();showToast('Trgovina dodana: '+n);
     };
-    actRow.appendChild(addBtn);
-
-    const urediBtn=document.createElement('button');
-    urediBtn.textContent='✏️ Uredi trgovine';
-    urediBtn.style.cssText='padding:5px 11px;border:1.5px dashed var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
-    urediBtn.onclick=()=>{window._urediTrgovine=true;renderListekTipBar();};
-    actRow.appendChild(urediBtn);
-  } else {
-    const doneBtn=document.createElement('button');
-    doneBtn.textContent='✓ Končaj urejanje';
-    doneBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:var(--accent);font-size:11px;font-family:\'DM Sans\',sans-serif;color:#fff;cursor:pointer;white-space:nowrap;';
-    doneBtn.onclick=()=>{window._urediTrgovine=false;renderListekTipBar();};
-    actRow.appendChild(doneBtn);
-  }
-  bar.appendChild(actRow);
+    inp.onkeydown=(e)=>{if(e.key==='Enter')doAdd();if(e.key==='Escape')panel.remove();};
+    okBtn.onclick=doAdd;
+    panel.appendChild(inp);panel.appendChild(okBtn);
+    bar.appendChild(panel);
+    setTimeout(()=>inp.focus(),50);
+  };
+  bar.appendChild(addBtn);
 }
 
 function setListekTip(tip){
@@ -1551,8 +1528,8 @@ function renderShranjeni(){
 
   // Prikaži: najprej listki za trgovino, nato skupni
   const sortirani=[
-    ...savedLists.map((s,i)=>({s,i})).filter(({s})=>s.shopId&&s.shopId!=='vse'),
-    ...savedLists.map((s,i)=>({s,i})).filter(({s})=>!s.shopId||s.shopId==='vse'),
+    ...savedLists.map((s,idx)=>({s,idx})).filter(({s})=>s.shopId&&s.shopId!=='vse'),
+    ...savedLists.map((s,idx)=>({s,idx})).filter(({s})=>!s.shopId||s.shopId==='vse'),
   ];
   sortirani.forEach(({s,idx})=>{
     const card=document.createElement('div');
@@ -1981,6 +1958,8 @@ function potrdiOdznaci(){
 function odznaci(){
   items.forEach(i=>{i.checked=false;i.shops=[];});
   extraItems=[];
+  _aktivnoPodrocje=null;
+  listek_tip='splosno';
   save();
   const v=document.querySelector('.tab.active').id.replace('tab-','');
   if(v==='nakup')renderNakup();else renderKosarica();
