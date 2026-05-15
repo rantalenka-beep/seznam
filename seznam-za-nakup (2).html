@@ -103,7 +103,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
       <button onclick="showView('kosarica')" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:transparent;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;white-space:nowrap;">← Listki</button>
       <div class="search-box" style="flex:1;margin-bottom:0;">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Išči artikel..." oninput="renderNakup()" style="padding-left:36px;margin-bottom:0;" />
+        <input type="text" id="searchInput" placeholder="Išči artikel..." oninput="renderNakup()" onblur="setTimeout(()=>{const v=document.getElementById('searchInput');if(v&&v.value){v.value='';renderNakup();}},200)" style="padding-left:36px;margin-bottom:0;" />
         <button class="search-clear" id="searchClear" onclick="document.getElementById('searchInput').value='';renderNakup();" style="display:none;">×</button>
       </div>
     </div>
@@ -1229,7 +1229,7 @@ function renderKosarica(){
       items.forEach(i=>{i.checked=false;i.shops=[];});extraItems=[];
       window._shopNotes={};window._skupniNote='';
       save();renderKosarica();renderListekTipBar();
-      showToast('Vsi listki izbrisani');
+      showToast('Vsi aktivni listki izbrisani');
     });
     container.appendChild(pocistiBtn);
   }
@@ -1940,7 +1940,7 @@ function renderShranjeni(){
 
     // Skupni seznam — na dnu, SAMO če listek ni za specifično trgovino
     const skupniItems=s.artikli.filter(a=>!a.shops||!a.shops.length);
-    if(skupniItems.length&&!s.shopId){
+    if(skupniItems.length&&(!s.shopId||s.shopId==='splosno')){
       const skupniHdr=document.createElement('div');
       skupniHdr.style.cssText='font-size:12px;font-weight:600;color:var(--accent);margin:10px 0 5px;text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid rgba(212,96,122,0.2);padding-top:8px;';
       skupniHdr.textContent='Listek za nakup (splošni)';
@@ -2373,8 +2373,16 @@ function posodobiAktivniListek(){
 }
 
 function shraniAktivniListek(idx){
-  posodobiAktivniListek();
+  if(_activeListIdx===idx)posodobiAktivniListek();
   const al=activeLists[idx];
+  // Zagotovi da ima listek za trgovino pravilno strukturo
+  if(al.shopId&&al.shopId!=='splosno'){
+    // Artikli morajo imeti shops array z shopId
+    al.artikli=al.artikli.map(a=>({
+      ...a,
+      shops:a.shops&&a.shops.length?a.shops:[al.shopId]
+    }));
+  }
   savedLists.unshift({...al});
   saveSaved();
   activeLists.splice(idx,1);
