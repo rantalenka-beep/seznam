@@ -99,13 +99,10 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 <!-- SEZNAM -->
 <div id="view-nakup" class="view">
   <div class="sticky-bar">
-    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
-      <button onclick="showView('kosarica')" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:transparent;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;white-space:nowrap;">← Listki</button>
-      <div class="search-box" style="flex:1;margin-bottom:0;">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Išči artikel..." oninput="renderNakup()" onblur="setTimeout(()=>{const v=document.getElementById('searchInput');if(v&&v.value){v.value='';renderNakup();}},200)" style="padding-left:36px;margin-bottom:0;" />
-        <button class="search-clear" id="searchClear" onclick="document.getElementById('searchInput').value='';renderNakup();" style="display:none;">×</button>
-      </div>
+    <div class="search-box" style="margin-bottom:0;">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Išči artikel..." oninput="renderNakup()" onblur="setTimeout(()=>{const v=document.getElementById('searchInput');if(v&&v.value){v.value='';renderNakup();}},200)" style="padding-left:36px;margin-bottom:0;" />
+      <button class="search-clear" id="searchClear" onclick="document.getElementById('searchInput').value='';renderNakup();" style="display:none;">×</button>
     </div>
     <div id="catBar" style="display:flex;gap:5px;flex-wrap:wrap;padding-bottom:2px;margin-top:2px;"></div>
     <div id="dodajZaTrgovinoBanner" style="display:none;margin-top:6px;"></div>
@@ -185,7 +182,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div id="shranjeniList"></div>
   <div id="shranjeniEmpty" class="empty-state">
     <div class="icon">📂</div>
-    <p>Še ni shranjenih seznamov.<br>V listku klikni <strong>💾 Shrani</strong>.</p>
+    <p>Trenutno ni shranjenih listkov.<br>V listku klikni <strong>💾 Shrani</strong>.</p>
   </div>
 </div>
 
@@ -220,23 +217,26 @@ let userCats=loadUserCats();
 const CATEGORIES=["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Žita in kosmiči","Suha živila","Oreščki in semena","Tofu in rastlinski proteini","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije in prigrizki","Osebna nega","Čistila in gospodinjstvo","Ostalo"];
 
 const DEFAULT_ITEMS=[
-  {cat:"Sadje",items:["Banane","Jabolka","Pomaranče","Limone","Limete","Jagode","Maline","Borovnice","Robide","Grozdje","Hruške","Breskve","Nektarine","Slive","Kivi","Mango","Ananas","Melona","Lubenica","Avokado","Datlji","Rozine","Suhe marelice","Suhe slive","Papaja","Granatno jabolko"]},
-  {cat:"Zelenjava",items:["Paradižnik","Češnjev paradižnik","Kumare","Paprika","Čebula","Rdeča čebula","Česen","Por","Solata","Špinača","Rukola","Radič","Brokoli","Cvetača","Korenje","Tikvice","Buča","Beluši","Koleraba","Zelje","Rdeče zelje","Rdeča pesa","Redkvice","Zelena","Krompir","Sladki krompir","Gobe","Artičoke","Feferoni","Jajčevci","Brstični ohrovt","Bučke","Ohrovt","Blitva","Endivija","Pak choi","Minikorenje","Koromač","Šalotka","Vodna kreša","Radicchio","Batata"]},
-  {cat:"Jajca in mlečni",items:["Jajca","Mleko","Sojino mleko","Ovseno mleko","Mandljevo mleko","Jogurt","Grški jogurt","Sojin jogurt","Sir (trdi)","Sir (mehki)","Mozzarella","Feta sir","Parmezan","Ricotta","Halloumi","Mascarpone","Maslo","Rastlinsko maslo","Skuta","Kisla smetana","Sladka smetana","Kokosova smetana","Kremni sir"]},
-  {cat:"Pekarna",items:["Kruh","Žemlje","Polnozrnat kruh","Rženi kruh","Baguette","Ciabatta","Pita kruh","Tortilije","Prepečenec","Riževi kruhki","Koruzni kruhki","Croissant","Brioche","Rženi hrustljavi kruh","Focaccia","Mafini","Pecivo"]},
-  {cat:"Žita in kosmiči",items:["Ovseni kosmiči","Muesli","Granola","Koruzni kosmiči","Speltni kosmiči","Riževi kosmiči","Ajdovi kosmiči","Polnozrnati kosmiči"]},
-  {cat:"Suha živila",items:["Testenine","Špageti","Penne","Fusilli","Lazanje","Riž","Rjavi riž","Basmati riž","Kvinoja","Ječmen","Proso","Ajda","Polenta","Leča (rdeča)","Leča (zelena)","Čičerika","Fižol (beli)","Fižol (rdeči)","Tahini","Arašidovo maslo","Zelenjavna juha v prahu","Kokosov sladkor"]},
-  {cat:"Konzerve in kozarci",items:["Konzerva paradižnikov","Paradižnikova mezga","Pelati","Čičerika (konzerva)","Fižol (konzerva)","Leča (konzerva)","Kokosovo mleko (konzerva)","Tunina (konzerva)","Olivno olje","Sončnično olje","Kokosovo olje","Kis (jabolčni)","Kis (balzamični)","Sojina omaka","Tamari","Med","Javorjev sirup","Agavin sirup","Marmelada","Lečo","Ajvar","Olivne","Kapre","Artičoke (kozarec)"]},
-  {cat:"Sveže testenine",items:["Njoki","Tortellini (sir)","Tortellini (špinača)","Tortellini (gobe)","Ravioli","Tagliatelle (sveže)","Lasagne plošče (sveže)","Sveži špageti","Gnocchi","Canelloni"]},
-  {cat:"Oreščki in semena",items:["Orehi","Mandlji","Indijski oreščki","Lešniki","Pistacije","Pečeni arašidi","Makadamija","Mešani oreščki","Bučna semena","Sezamova semena","Lanena semena","Chia semena","Sončnična semena","Konopljina semena"]},
-  {cat:"Tofu in rastlinski proteini",items:["Tofu (navadni)","Tofu (dimljeni)","Tofu (svilen)","Edamame (svež)","Tempeh","Seitan","Rastlinski burger","Rastlinske hrenovke"]},
-  {cat:"Zamrznjeno",items:["Zamrznjen grah","Zamrznjena koruza","Zamrznjena špinača","Zamrznjen brokoli","Zamrznjena mešana zelenjava","Zamrznjene jagode","Zamrznjene maline","Zamrznjene borovnice","Zamrznjen fižol","Edamame (zamrznjen)","Zamrznjeni štruklji","Zamrznjena pica","Zamrznjeni krapi","Zamrznjene palačinke","Zamrznjen pomfri","Zamrznjen kruh","Sladoled"]},
-  {cat:"Začimbe in omake",items:["Sol","Morska sol","Poper","Kurkuma","Kumina","Koriander (mlet)","Paprika v prahu","Dimljena paprika","Cimet","Muškatni orešček","Lovorov list","Timijan","Rožmarin","Bazilika","Origano","Curry v prahu","Čili v prahu","Čili kosmiči","Ingver (mlet)","Ingver (svež)","Gorčica","Kečap","Tabasco","Sriracha","Jušna osnova (zelenjavna)","Teriyaki omaka","Pesto"]},
-  {cat:"Dodatki za peko",items:["Moka (bela)","Moka (polnozrnata)","Moka (pirina)","Moka (riževa)","Moka (ajdova)","Mandljeva moka","Kokosova moka","Sladkor","Rjavi sladkor","Sladkor v prahu","Vanilijev sladkor","Pecilni prašek","Soda bikarbona","Instant kvas","Suhi kvas","Jedilni škrob","Kakav v prahu","Čokolada za kuhanje","Čokoladne kapljice","Aroma vanilije","Kokosovi kosmiči","Rozine za peko","Orehi za peko"]},
-  {cat:"Pijače",items:["Voda","Mineralna voda","Sok (pomaranča)","Sok (jabolko)","Sok (brusnica)","Zeliščni čaj","Zeleni čaj","Črni čaj","Kava (zrna)","Kava (mleta)","Instant kava","Kombucha","Vino (rdeče)","Vino (belo)","Pivo"]},
-  {cat:"Sladkarije in prigrizki",items:["Temna čokolada","Mlečna čokolada","Piškoti","Riževi vaflji","Koruzni čips","Popcorn","Energijske ploščice","Halvah"]},
-  {cat:"Osebna nega",items:["Šampon","Balzam za lase","Gel za tuširanje","Milo","Tekoče milo","Zobna pasta","Zobna ščetka","Nitka za zobe","Ustna voda","Dezodorant","Krema za obraz","Krema za telo","Sončna krema","Tamponi","Vložki","Higienski robčki","Vatirančki"]},
-  {cat:"Čistila in gospodinjstvo",items:["Detergent za pomivanje","Detergent za pomivalni stroj","Detergent za pranje","Mehčalec","Čistilo za kopalnico","Čistilo za WC","Čistilo za kuhinjske površine","Sredstvo za steklo","Toaletni papir","Papirnate brisačke","Kuhinjske krpe","Spužvice","Aluminijasta folija","Pečica papir","Vrečke za smeti","Vrečke za zamrzovalnik","Zip vrečke","Baterije","Sveče","Vžigalice","Žarnice"]},
+  {cat:"Sadje",items:["Banane","Jabolka","Pomaranče","Jagode","Avokado","Limone","Maline","Borovnice","Grozdje","Hruške","Kivi","Limete","Mango","Breskve","Nektarine","Robide","Slive","Ananas","Melona","Lubenica","Datlji","Rozine","Suhe marelice","Suhe slive","Papaja","Granatno jabolko"]},
+  {cat:"Zelenjava",items:["Paradižnik","Čebula","Česen","Korenje","Krompir","Solata","Špinača","Brokoli","Paprika","Kumare","Tikvice","Rukola","Češnjev paradižnik","Rdeča čebula","Por","Gobe","Zelje","Cvetača","Buča","Koleraba","Beluši","Rdeča pesa","Feferoni","Jajčevci","Sladki krompir","Brstični ohrovt","Bučke","Ohrovt","Blitva","Radič","Redkvice","Zelena","Artičoke","Rdeče zelje","Endivija","Pak choi","Minikorenje","Koromač","Šalotka","Vodna kreša","Radicchio","Batata"]},
+  {cat:"Jajca in mlečni",items:["Jajca","Mleko","Jogurt","Sir (trdi)","Maslo","Mozzarella","Grški jogurt","Skuta","Kisla smetana","Parmezan","Feta sir","Sojino mleko","Ovseno mleko","Mandljevo mleko","Sojin jogurt","Ricotta","Halloumi","Mascarpone","Rastlinsko maslo","Sladka smetana","Kokosova smetana","Kremni sir"]},
+  {cat:"Pekarna",items:["Kruh","Žemlje","Polnozrnat kruh","Rženi kruh","Tortilije","Baguette","Ciabatta","Croissant","Pita kruh","Prepečenec","Riževi kruhki","Brioche","Rženi hrustljavi kruh","Focaccia","Mafini","Pecivo","Koruzni kruhki"]},
+  {cat:"Žita in kosmiči",items:["Ovseni kosmiči","Granola","Muesli","Koruzni kosmiči","Speltni kosmiči","Riževi kosmiči","Ajdovi kosmiči","Polnozrnati kosmiči"]},
+  {cat:"Suha živila",items:["Testenine","Špageti","Riž","Penne","Fusilli","Rjavi riž","Leča (rdeča)","Čičerika","Basmati riž","Kvinoja","Lazanje","Fižol (beli)","Fižol (rdeči)","Leča (zelena)","Ječmen","Proso","Ajda","Polenta","Zelenjavna juha v prahu","Kokosov sladkor"]},
+  {cat:"Kis in olje",items:["Olivno olje","Sončnično olje","Sojina omaka","Kis (jabolčni)","Kis (balzamični)","Kokosovo olje","Tamari","Bučno olje","Laneno olje","Kis (rižev)","Kis (beli)","Worcestershire omaka"]},
+  {cat:"Konzerve",items:["Konzerva paradižnikov","Pelati","Čičerika (konzerva)","Kokosovo mleko (konzerva)","Fižol (konzerva)","Paradižnikova mezga","Leča (konzerva)","Koruzni listi (konzerva)","Paprika (konzerva)","Artičoke (konzerva)","Čili (konzerva)"]},
+  {cat:"Vloženo slano",items:["Ajvar","Kumarice","Kislo zelje","Olivne","Kisla repa","Lečo","Kapre","Paradižniki (kozarec)","Paprika (kozarec)","Miso pasta","Čili (kozarec)","Kimchi","Tempeh","Artičoke (kozarec)"]},
+  {cat:"Marmelade in namazi",items:["Marmelada","Med","Arašidovo maslo","Tahini","Džem","Mandljevo maslo","Javorjev sirup","Nutella","Agavin sirup","Čokoladni namaz","Orehi v medu"]},
+  {cat:"Sveže testenine",items:["Njoki","Tortellini (sir)","Tortellini (špinača)","Ravioli","Gnocchi","Tortellini (gobe)","Tagliatelle (sveže)","Lasagne plošče (sveže)","Sveži špageti","Canelloni"]},
+  {cat:"Oreščki in semena",items:["Mandlji","Orehi","Lešniki","Bučna semena","Sončnična semena","Indijski oreščki","Chia semena","Lanena semena","Sezamova semena","Pistacije","Pečeni arašidi","Konopljina semena","Makadamija","Mešani oreščki"]},
+  {cat:"Tofu in rastlinski proteini",items:["Tofu (navadni)","Tofu (dimljeni)","Tempeh","Edamame (svež)","Tofu (svilen)","Seitan","Rastlinski burger","Rastlinske hrenovke"]},
+  {cat:"Zamrznjeno",items:["Zamrznjen grah","Zamrznjena mešana zelenjava","Zamrznjena špinača","Zamrznjene jagode","Zamrznjena koruza","Zamrznjene maline","Zamrznjene borovnice","Zamrznjen brokoli","Zamrznjen fižol","Edamame (zamrznjen)","Sladoled","Zamrznjeni štruklji","Zamrznjena pica","Zamrznjene palačinke","Zamrznjen kruh","Zamrznjen pomfri","Zamrznjeni krapi"]},
+  {cat:"Začimbe in omake",items:["Sol","Poper","Olivno olje","Česen (v prahu)","Paprika v prahu","Kurkuma","Bazilika","Origano","Timijan","Cimet","Kumina","Koriander (mlet)","Dimljena paprika","Curry v prahu","Ingver (svež)","Gorčica","Kečap","Pesto","Rožmarin","Sriracha","Lovorov list","Morska sol","Muškatni orešček","Čili v prahu","Čili kosmiči","Ingver (mlet)","Tabasco","Jušna osnova (zelenjavna)","Teriyaki omaka"]},
+  {cat:"Dodatki za peko",items:["Moka (bela)","Sladkor","Pecilni prašek","Instant kvas","Kakav v prahu","Čokolada za kuhanje","Moka (polnozrnata)","Vanilijev sladkor","Rjavi sladkor","Soda bikarbona","Mandljeva moka","Moka (pirina)","Čokoladne kapljice","Jedilni škrob","Moka (riževa)","Moka (ajdova)","Aroma vanilije","Sladkor v prahu","Kokosovi kosmiči","Rozine za peko","Orehi za peko","Kokosova moka","Suhi kvas"]},
+  {cat:"Pijače",items:["Voda","Sok (pomaranča)","Kava (mleta)","Zeliščni čaj","Mineralna voda","Zeleni čaj","Sok (jabolko)","Kava (zrna)","Črni čaj","Instant kava","Kombucha","Sok (brusnica)","Vino (belo)","Vino (rdeče)","Pivo"]},
+  {cat:"Sladkarije in prigrizki",items:["Temna čokolada","Piškoti","Riževi vaflji","Energijske ploščice","Popcorn","Mlečna čokolada","Koruzni čips","Halvah"]},
+  {cat:"Osebna nega",items:["Toaletni papir","Zobna pasta","Šampon","Dezodorant","Gel za tuširanje","Milo","Zobna ščetka","Tekoče milo","Krema za obraz","Balzam za lase","Vložki","Tamponi","Krema za telo","Nitka za zobe","Ustna voda","Sončna krema","Higienski robčki","Vatirančki"]},
+  {cat:"Čistila in gospodinjstvo",items:["Toaletni papir","Detergent za pranje","Detergent za pomivanje","Vrečke za smeti","Detergent za pomivalni stroj","Mehčalec","Spužvice","Pečica papir","Aluminijasta folija","Čistilo za kuhinjske površine","Čistilo za kopalnico","Čistilo za WC","Kuhinjske krpe","Papirnate brisačke","Sredstvo za steklo","Vrečke za zamrzovalnik","Zip vrečke","Baterije","Sveče","Vžigalice","Žarnice"]},
 ];
 
 function loadItems(){
@@ -359,7 +359,7 @@ const catColorMap={
   'Oreščki in semena':'#fdf0e0','Tofu in rastlinski proteini':'#f0fff5',
   'Zamrznjeno':'#e8f4ff','Začimbe in omake':'#fff0f5','Dodatki za peko':'#fef9f0',
   'Pijače':'#f0f5ff','Sladkarije in prigrizki':'#fff0f8','Osebna nega':'#f5f0ff',
-  'Čistila in gospodinjstvo':'#f0f8ff','Konzerve in kozarci':'#f0ede8',
+  'Čistila in gospodinjstvo':'#f0f8ff','Kis in olje':'#fdf5e0','Konzerve':'#f5ede8','Vloženo slano':'#f0ede0','Marmelade in namazi':'#fdf0e8',
   'Sveže testenine':'#fdf0e8',
   'Ostalo':'#f5f5f5',
 };
@@ -369,7 +369,7 @@ const catBorderMap={
   'Oreščki in semena':'#d8b888','Tofu in rastlinski proteini':'#a8d8b8',
   'Zamrznjeno':'#a8c8e8','Začimbe in omake':'#e8a8b8','Dodatki za peko':'#e8d090',
   'Pijače':'#a8b8e8','Sladkarije in prigrizki':'#e8a8c8','Osebna nega':'#c8a8e8',
-  'Čistila in gospodinjstvo':'#a8c8e8','Konzerve in kozarci':'#d4c8b8',
+  'Čistila in gospodinjstvo':'#a8c8e8','Kis in olje':'#d4b870','Konzerve':'#d4b8a8','Vloženo slano':'#b8c8a0','Marmelade in namazi':'#e8c898',
   'Sveže testenine':'#e8c898',
   'Ostalo':'#c8c8c8',
 };
@@ -567,8 +567,8 @@ function renderNakup(){
         if(getCategories().includes(n)){showToast('To področje že obstaja');return;}
         userCats.push(n);saveUserCats();
         try{localStorage.removeItem('nakup-cat-order');}catch(e){}
-        inp.value='';renderNakup();showToast('Področje dodano: '+n);
         window._urediPodrocja=true;
+        inp.value='';renderNakup();showToast('Področje dodano: '+n);
       };
       inp.onkeydown=(e)=>{if(e.key==='Enter')doAdd();};
       okBtn.onclick=doAdd;
@@ -659,8 +659,7 @@ function renderNakup(){
 
     const isThisCatEditing=_urediMode&&_aktivnoPodrocje===cat;
 
-    if(!catItems.length&&!isThisCatEditing&&!(_urediMode&&userCats.includes(cat)))return;
-    if(!catItems.length&&!isThisCatEditing)return;
+    if(!catItems.length&&!isThisCatEditing&&!(_urediMode&&userCats.includes(cat))&&_aktivnoPodrocje!==cat)return;
     hasResults=true;
 
     const bgColor=catColorMap[cat]||'#f8f8f8';
@@ -1839,7 +1838,7 @@ function renderShranjeni(){
 
   vidni.forEach(({s,idx})=>{
     const card=document.createElement('div');
-    card.className='item-card';
+    card.className='item-card shranj-card';
 
     // GLAVA — datum, ime, gumbi
     const glava=document.createElement('div');
@@ -2574,17 +2573,14 @@ function preimenujShranjen(idx){
 
 function izbrisiShranjen(idx){
   const ime=savedLists[idx].ime;
-  // Lebdeča potrditev
   const old=document.getElementById('shranjeniDelConf');if(old)old.remove();
-  const btnEl=document.querySelector(`[data-del-idx="${idx}"]`);
-  const rect=btnEl?btnEl.getBoundingClientRect():{top:200,left:20};
   const conf=document.createElement('div');
   conf.id='shranjeniDelConf';
-  conf.style.cssText=`position:fixed;left:${Math.min(rect.left,window.innerWidth-220)}px;top:${Math.max(rect.top-52,60)}px;background:#fff;border:1.5px solid #e08080;border-radius:var(--radius-sm);padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:13px;color:#c04040;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:300;white-space:nowrap;`;
-  conf.textContent='Izbriši "'+ime+'"? ';
+  conf.style.cssText='margin:8px 0 0;padding:9px 12px;background:#fff8e6;border:1px solid rgba(180,130,0,0.3);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;font-size:13px;color:#7a5800;';
+  conf.innerHTML=`<span style="flex:1;">⚠️ Izbrisati ta listek?</span>`;
   const daBtn=document.createElement('button');
   daBtn.textContent='Da';
-  daBtn.style.cssText='padding:4px 12px;background:#c04040;color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-weight:600;';
+  daBtn.style.cssText='padding:5px 10px;background:#c04040;color:#fff;border:none;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;font-weight:600;flex-shrink:0;';
   daBtn.onclick=()=>{
     conf.remove();
     savedLists.splice(idx,1);
@@ -2593,14 +2589,17 @@ function izbrisiShranjen(idx){
   };
   const neBtn=document.createElement('button');
   neBtn.textContent='Ne';
-  neBtn.style.cssText='padding:4px 10px;background:transparent;color:#c04040;border:1px solid #e08080;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;';
+  neBtn.style.cssText='padding:5px 10px;background:transparent;border:0.5px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;flex-shrink:0;';
   neBtn.onclick=()=>conf.remove();
   conf.appendChild(daBtn);conf.appendChild(neBtn);
-  document.body.appendChild(conf);
-  setTimeout(()=>{
-    const cl=(e)=>{if(!conf.contains(e.target)){conf.remove();document.removeEventListener('click',cl);}};
-    document.addEventListener('click',cl);
-  },100);
+  // Vstavi za gumb ki je bil kliknjen
+  const btnEl=document.querySelector(`[data-del-idx="${idx}"]`);
+  if(btnEl&&btnEl.closest('.shranj-card')){
+    btnEl.closest('.shranj-card').appendChild(conf);
+  } else {
+    document.getElementById('shranjeniList').appendChild(conf);
+  }
+  setTimeout(()=>{const cl=(e)=>{if(!conf.contains(e.target)){conf.remove();document.removeEventListener('click',cl);}};document.addEventListener('click',cl);},100);
 }
 
 function deliAktivniListek(idx){
