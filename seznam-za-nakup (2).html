@@ -126,9 +126,9 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div style="background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);margin-bottom:16px;">Dobrodošli v Nakupovalni listki! 🛒</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">🛒 Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Lahko jih pošlješ drugim.</div>
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kar želiš kupiti. Iščeš po področjih (sadje, zelenjava...) ali po imenu. Področja, artikle in trgovine lahko dodajaš, izbrišeš ali razvrščaš po vrstnem redu.</div>
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">✏️ Urejanje</strong><br>V artiklih pritisni <strong>Uredi področja</strong> za urejanje področij ali <strong>Uredi artikle</strong> za dodajanje in brisanje artiklov. Trgovine urediš v Listkih.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">🗒️ Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Lahko jih pošlješ drugim.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kar želiš kupiti. Iščeš po področjih (sadje, zelenjava...) ali po imenu (npr. cvetača). Pri vsakem artiklu lahko izbereš tudi trgovino v kateri ga želiš kupiti in avtomatsko se ustvari listek za izbrano trgovino.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">✏️ Urejanje</strong><br>Lahko dodajaš, odvzemaš in razvrščaš po pomembnosti področja, trgovine in artikle (sledi gumbu za urejanje).</div>
       <div><strong style="color:var(--text);">📂 Shranjeni listki</strong><br>Shrani listke za kasnejšo uporabo.</div>
     </div>
     <button onclick="document.getElementById('welcomeModal').style.display='none';localStorage.setItem('nakup-welcome','1');" style="width:100%;padding:13px;background:var(--accent-btn);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;">Razumem, začnimo! →</button>
@@ -186,6 +186,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div id="shranjeniList"></div>
   <div id="shranjeniEmpty" class="empty-state">
     <div class="icon">📂</div>
+    <div class="icon" style="font-size:28px;">🛒</div>
     <p>Trenutno ni shranjenih listkov.<br>V listku klikni <strong>💾 Shrani</strong>.</p>
   </div>
 </div>
