@@ -317,12 +317,22 @@ function showView(v){
   const tabEl=document.getElementById('tab-'+v);
   if(tabEl)tabEl.classList.add('active');
   if(v==='nakup'){
-    _aktivnoPodrocje=null;_vsaPodrocja=false;
+    // Ponastavi področje vedno (razen ko prihajamo iz listka z nastavljeno trgovino)
+    if(!window._dodajZaTrgovino&&!window._dodajVShranjenIdx){
+      _aktivnoPodrocje=null;_vsaPodrocja=false;
+    }
     window.scrollTo(0,0);
     renderNakup();
   }
-  else if(v==='kosarica'){window._dodajZaTrgovino=null;window._dodajVShranjenIdx=null;window.scrollTo(0,0);renderListekTipBar();renderKosarica();}
-  else if(v==='shranjeni'){window.scrollTo(0,0);renderShranjeni();}
+  else if(v==='kosarica'){
+    _urediMode=false;window._urediPodrocja=false;
+    window._dodajZaTrgovino=null;window._dodajVShranjenIdx=null;
+    window.scrollTo(0,0);renderListekTipBar();renderKosarica();
+  }
+  else if(v==='shranjeni'){
+    _urediMode=false;window._urediPodrocja=false;
+    window.scrollTo(0,0);renderShranjeni();
+  }
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -356,7 +366,7 @@ function renderNakup(){
     if(bannerEl){
       bannerEl.style.display='flex';
       bannerEl.style.cssText=`display:flex;align-items:center;gap:8px;margin-top:6px;padding:8px 12px;background:${isSkupni?'var(--accent-light)':shop?shop.color+'15':'var(--accent-light)'};border:1px solid ${isSkupni?'rgba(212,96,122,0.3)':shop?shop.color+'40':'rgba(212,96,122,0.3)'};border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:${isSkupni?'var(--accent-dark)':shop?shop.color:'var(--accent-dark)'};`;
-      bannerEl.innerHTML=`<span style="flex:1;">Izberi artikle za nakup v trgovini <strong>${isSkupni?'skupni seznam':shop?shop.name:'listek'}</strong></span><button onclick="window._dodajZaTrgovino=null;renderNakup();" style="border:none;background:transparent;color:inherit;font-size:16px;cursor:pointer;">×</button>`;
+      bannerEl.innerHTML=`<span style="flex:1;">Listek za <strong>${isSkupni?'skupni seznam':shop?shop.name:'listek'}</strong></span><button onclick="window._dodajZaTrgovino=null;renderNakup();" style="border:none;background:transparent;color:inherit;font-size:16px;cursor:pointer;">×</button>`;
     }
   } else if(window._dodajVShranjenIdx!==null&&window._dodajVShranjenIdx!==undefined){
     const s=savedLists[window._dodajVShranjenIdx];
@@ -408,13 +418,16 @@ function renderNakup(){
         _urediMode=false;
         renderNakup();
         if(_aktivnoPodrocje){
+          // Dvojni timeout — prvi za render, drugi za browser layout
           setTimeout(()=>{
-            const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
-            if(!el)return;
-            const headerH=document.querySelector('header').offsetHeight;
-            const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
-            window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4,behavior:'smooth'});
-          },100);
+            setTimeout(()=>{
+              const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
+              if(!el)return;
+              const headerH=document.querySelector('header')?document.querySelector('header').offsetHeight:88;
+              const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
+              window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4,behavior:'smooth'});
+            },80);
+          },50);
         }
       };
       pill.appendChild(label);
@@ -859,7 +872,7 @@ function renderListekTipBar(){
   const bar=document.getElementById('listek-tip-bar');
   if(!bar)return;
   bar.innerHTML='';
-  const urediVrstni=window._urediShopVrstni||false;
+  const urediVrstni=true; // vedno vlečljivo
 
   const grid=document.createElement('div');
   grid.id='shopGrid';
@@ -870,26 +883,24 @@ function renderListekTipBar(){
     const active=isKosarica&&listek_tip===shop.id;
     const btn=document.createElement('button');
     btn.dataset.si=String(si);
-    btn.draggable=urediVrstni;
-    btn.style.cssText=`padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid ${urediVrstni?'var(--border2)':shop.color+'50'};background:${active?shop.color+'18':'var(--surface)'};color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;cursor:${urediVrstni?'grab':'pointer'};white-space:nowrap;`;
+    btn.draggable=true;
+    btn.style.cssText=`padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid ${shop.color+'50'};background:${active?shop.color+'18':'var(--surface)'};color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;`;
     btn.textContent=escHtml(shop.name);
-    if(!urediVrstni) btn.onclick=()=>{setListekTip(shop.id);showView('nakup');};
+    btn.onclick=()=>{setListekTip(shop.id);showView('nakup');};
 
-    if(urediVrstni){
-      btn.addEventListener('dragstart',e=>{window._dragShopBtn=si;setTimeout(()=>btn.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
-      btn.addEventListener('dragend',()=>{btn.style.opacity='1';grid.querySelectorAll('button').forEach(b=>b.style.borderStyle='solid');});
-      btn.addEventListener('dragover',e=>{e.preventDefault();btn.style.borderStyle='dashed';});
-      btn.addEventListener('dragleave',()=>{btn.style.borderStyle='solid';});
-      btn.addEventListener('drop',e=>{
-        e.preventDefault();btn.style.borderStyle='solid';
-        const from=window._dragShopBtn,to=si;
-        if(from==null||from===to)return;
-        const all=getShops();
-        const moved=all.splice(from,1)[0];all.splice(to,0,moved);
-        localStorage.setItem('nakup-shop-order',JSON.stringify(all));
-        renderListekTipBar();
-      });
-    }
+    btn.addEventListener('dragstart',e=>{window._dragShopBtn=si;setTimeout(()=>btn.style.opacity='0.4',0);e.dataTransfer.effectAllowed='move';});
+    btn.addEventListener('dragend',()=>{btn.style.opacity='1';grid.querySelectorAll('button').forEach(b=>b.style.borderStyle='solid');});
+    btn.addEventListener('dragover',e=>{e.preventDefault();btn.style.borderStyle='dashed';});
+    btn.addEventListener('dragleave',()=>{btn.style.borderStyle='solid';});
+    btn.addEventListener('drop',e=>{
+      e.preventDefault();btn.style.borderStyle='solid';
+      const from=window._dragShopBtn,to=si;
+      if(from==null||from===to)return;
+      const all=getShops();
+      const moved=all.splice(from,1)[0];all.splice(to,0,moved);
+      localStorage.setItem('nakup-shop-order',JSON.stringify(all));
+      renderListekTipBar();
+    });
     grid.appendChild(btn);
   });
 
@@ -924,31 +935,6 @@ function renderListekTipBar(){
   };
   grid.appendChild(addBtn);
   bar.appendChild(grid);
-
-  // Gumb uredi vrstni red / končaj
-  const actRow=document.createElement('div');
-  actRow.style.cssText='display:flex;gap:6px;margin-top:4px;';
-  if(!urediVrstni){
-    const urediBtn=document.createElement('button');
-    urediBtn.textContent='✏️ Uredi vrstni red';
-    urediBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
-    urediBtn.onclick=()=>{window._urediShopVrstni=true;renderListekTipBar();};
-    actRow.appendChild(urediBtn);
-  } else {
-    const doneBtn=document.createElement('button');
-    doneBtn.textContent='✓ Končaj';
-    doneBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:var(--accent-btn);font-size:11px;font-family:\'DM Sans\',sans-serif;color:#fff;cursor:pointer;white-space:nowrap;';
-    doneBtn.onclick=()=>{window._urediShopVrstni=false;renderListekTipBar();};
-    actRow.appendChild(doneBtn);
-    // Opozorilo samo v uredi načinu
-    const hint=document.createElement('div');
-    hint.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--accent-light);border:1px solid rgba(212,96,122,0.2);border-radius:var(--radius-sm);margin-top:8px;font-size:12px;color:var(--accent-dark);width:100%;';
-    hint.innerHTML='💡 <span>Trgovine razvrščaš z <strong>pritisni in povleci</strong> na željeno mesto.</span>';
-    bar.appendChild(actRow);
-    bar.appendChild(hint);
-    return;
-  }
-  bar.appendChild(actRow);
 }
 
 function setListekTip(tip){
