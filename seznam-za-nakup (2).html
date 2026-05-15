@@ -125,6 +125,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
     <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
       <div style="margin-bottom:12px;"><strong style="color:var(--text);">🛒 Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Lahko jih pošlješ drugim.</div>
       <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kar želiš kupiti. Iščeš po področjih (sadje, zelenjava...) ali po imenu. Področja, artikle in trgovine lahko dodajaš, izbrišeš ali razvrščaš po vrstnem redu.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">✏️ Urejanje</strong><br>V artiklih pritisni <strong>Uredi področja</strong> za urejanje področij ali <strong>Uredi artikle</strong> za dodajanje in brisanje artiklov. Trgovine urediš v Listkih.</div>
       <div><strong style="color:var(--text);">📂 Shranjeni listki</strong><br>Shrani listke za kasnejšo uporabo.</div>
     </div>
     <button onclick="document.getElementById('welcomeModal').style.display='none';localStorage.setItem('nakup-welcome','1');" style="width:100%;padding:13px;background:var(--accent-btn);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;">Razumem, začnimo! →</button>
@@ -214,12 +215,12 @@ function saveUserCats(){try{localStorage.setItem('nakup-user-cats',JSON.stringif
 let userShops=loadUserShops();
 let userCats=loadUserCats();
 
-const CATEGORIES=["Sadje","Zelenjava","Jajca in mlečni","Pekarna","Žita in kosmiči","Suha živila","Oreščki in semena","Tofu in rastlinski proteini","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije in prigrizki","Osebna nega","Čistila in gospodinjstvo","Ostalo"];
+const CATEGORIES=["Sadje","Zelenjava","Jajca in mlečni izdelki","Pekarna","Žita in kosmiči","Suha živila","Oreščki in semena","Tofu in rastlinski proteini","Zamrznjeno","Začimbe in omake","Dodatki za peko","Pijače","Sladkarije in prigrizki","Osebna nega","Čistila in gospodinjstvo","Ostalo"];
 
 const DEFAULT_ITEMS=[
   {cat:"Sadje",items:["Banane","Jabolka","Pomaranče","Jagode","Avokado","Limone","Maline","Borovnice","Grozdje","Hruške","Kivi","Limete","Mango","Breskve","Nektarine","Robide","Slive","Ananas","Melona","Lubenica","Datlji","Rozine","Suhe marelice","Suhe slive","Papaja","Granatno jabolko"]},
   {cat:"Zelenjava",items:["Paradižnik","Čebula","Česen","Korenje","Krompir","Solata","Špinača","Brokoli","Paprika","Kumare","Tikvice","Rukola","Češnjev paradižnik","Rdeča čebula","Por","Gobe","Zelje","Cvetača","Buča","Koleraba","Beluši","Rdeča pesa","Feferoni","Jajčevci","Sladki krompir","Brstični ohrovt","Bučke","Ohrovt","Blitva","Radič","Redkvice","Zelena","Artičoke","Rdeče zelje","Endivija","Pak choi","Minikorenje","Koromač","Šalotka","Vodna kreša","Radicchio","Batata"]},
-  {cat:"Jajca in mlečni",items:["Jajca","Mleko","Jogurt","Sir (trdi)","Maslo","Mozzarella","Grški jogurt","Skuta","Kisla smetana","Parmezan","Feta sir","Sojino mleko","Ovseno mleko","Mandljevo mleko","Sojin jogurt","Ricotta","Halloumi","Mascarpone","Rastlinsko maslo","Sladka smetana","Kokosova smetana","Kremni sir"]},
+  {cat:"Jajca in mlečni izdelki",items:["Jajca","Mleko","Jogurt","Sir (trdi)","Maslo","Mozzarella","Grški jogurt","Skuta","Kisla smetana","Parmezan","Feta sir","Sojino mleko","Ovseno mleko","Mandljevo mleko","Sojin jogurt","Ricotta","Halloumi","Mascarpone","Rastlinsko maslo","Sladka smetana","Kokosova smetana","Kremni sir"]},
   {cat:"Pekarna",items:["Kruh","Žemlje","Polnozrnat kruh","Rženi kruh","Tortilije","Baguette","Ciabatta","Croissant","Pita kruh","Prepečenec","Riževi kruhki","Brioche","Rženi hrustljavi kruh","Focaccia","Mafini","Pecivo","Koruzni kruhki"]},
   {cat:"Žita in kosmiči",items:["Ovseni kosmiči","Granola","Muesli","Koruzni kosmiči","Speltni kosmiči","Riževi kosmiči","Ajdovi kosmiči","Polnozrnati kosmiči"]},
   {cat:"Suha živila",items:["Testenine","Špageti","Riž","Penne","Fusilli","Rjavi riž","Leča (rdeča)","Čičerika","Basmati riž","Kvinoja","Lazanje","Fižol (beli)","Fižol (rdeči)","Leča (zelena)","Ječmen","Proso","Ajda","Polenta","Zelenjavna juha v prahu","Kokosov sladkor"]},
@@ -377,7 +378,7 @@ function getShopName(id){return(getShops().find(s=>s.id===id)||{}).name||id;}
 function checkSvg(){return`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
 const catColorMap={
-  'Sadje':'#fff5f0','Zelenjava':'#f0f9f4','Jajca in mlečni':'#fffdf0',
+  'Sadje':'#fff5f0','Zelenjava':'#f0f9f4','Jajca in mlečni izdelki':'#fffdf0',
   'Pekarna':'#fdf5e8','Žita in kosmiči':'#faf0e6','Suha živila':'#f5f0e8',
   'Oreščki in semena':'#fdf0e0','Tofu in rastlinski proteini':'#f0fff5',
   'Zamrznjeno':'#e8f4ff','Začimbe in omake':'#fff0f5','Dodatki za peko':'#fef9f0',
@@ -387,7 +388,7 @@ const catColorMap={
   'Ostalo':'#f5f5f5',
 };
 const catBorderMap={
-  'Sadje':'#e8a0b0','Zelenjava':'#a8d8b8','Jajca in mlečni':'#e0d898',
+  'Sadje':'#e8a0b0','Zelenjava':'#a8d8b8','Jajca in mlečni izdelki':'#e0d898',
   'Pekarna':'#e8c888','Žita in kosmiči':'#d8c090','Suha živila':'#d4b898',
   'Oreščki in semena':'#d8b888','Tofu in rastlinski proteini':'#a8d8b8',
   'Zamrznjeno':'#a8c8e8','Začimbe in omake':'#e8a8b8','Dodatki za peko':'#e8d090',
@@ -678,31 +679,53 @@ function renderNakup(){
       hdr.style.cssText=`padding:9px 14px;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);background:${bgColor};border-bottom:1.5px solid ${borderColor};display:flex;align-items:center;gap:8px;`;
       hdr.innerHTML=`<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${borderColor};flex-shrink:0;"></span><span style="flex:1;">${cat}</span>`;
 
-      // ✏️ / ← gumb desno v naslovu področja
-      const editCatBtn=document.createElement('button');
-      editCatBtn.textContent=isThisCatEditing?'← Nazaj':'✏️';
-      editCatBtn.style.cssText=`border:none;background:transparent;font-size:${isThisCatEditing?'12px':'14px'};cursor:pointer;padding:2px 6px;color:${isThisCatEditing?'var(--accent)':'inherit'};font-family:'DM Sans',sans-serif;font-weight:${isThisCatEditing?'600':'400'};`;
-      editCatBtn.onclick=(e)=>{
-        e.stopPropagation();
-        if(isThisCatEditing){
-          _urediMode=false;
-          _aktivnoPodrocje=null;
-        } else {
+      // Uredi artikle / ← Nazaj gumb v naslovu kartice
+      if(isThisCatEditing||_urediMode){
+        const editCatBtn=document.createElement('button');
+        editCatBtn.textContent=isThisCatEditing?'← Nazaj':'✏️ Uredi artikle';
+        editCatBtn.style.cssText=`padding:4px 9px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;cursor:pointer;color:var(--accent);font-family:'DM Sans',sans-serif;white-space:nowrap;`;
+        editCatBtn.onclick=(e)=>{
+          e.stopPropagation();
+          if(isThisCatEditing){
+            _urediMode=false;
+            _aktivnoPodrocje=null;
+          } else {
+            _urediMode=true;
+            _aktivnoPodrocje=cat;
+          }
+          renderNakup();
+          setTimeout(()=>{
+            const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
+            if(el){
+              const headerH=document.querySelector('header')?document.querySelector('header').offsetHeight:88;
+              const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
+              const top=el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4;
+              window.scrollTo({top,behavior:'smooth'});
+            }
+          },100);
+        };
+        hdr.appendChild(editCatBtn);
+      } else {
+        const editCatBtn=document.createElement('button');
+        editCatBtn.textContent='✏️ Uredi artikle';
+        editCatBtn.style.cssText=`padding:4px 9px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;cursor:pointer;color:var(--accent);font-family:'DM Sans',sans-serif;white-space:nowrap;`;
+        editCatBtn.onclick=(e)=>{
+          e.stopPropagation();
           _urediMode=true;
           _aktivnoPodrocje=cat;
-        }
-        renderNakup();
-        setTimeout(()=>{
-          const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
-          if(el){
-            const headerH=document.querySelector('header')?document.querySelector('header').offsetHeight:88;
-            const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
-            const top=el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4;
-            window.scrollTo({top,behavior:'smooth'});
-          }
-        },100);
-      };
-      hdr.appendChild(editCatBtn);
+          renderNakup();
+          setTimeout(()=>{
+            const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
+            if(el){
+              const headerH=document.querySelector('header')?document.querySelector('header').offsetHeight:88;
+              const stickyH=document.querySelector('.sticky-bar')?document.querySelector('.sticky-bar').offsetHeight:0;
+              const top=el.getBoundingClientRect().top+window.scrollY-headerH-stickyH-4;
+              window.scrollTo({top,behavior:'smooth'});
+            }
+          },100);
+        };
+        hdr.appendChild(editCatBtn);
+      }
 
       wrapper.appendChild(hdr);
 
@@ -1668,7 +1691,7 @@ function setupShopDrag(el){
 
 function renderSeznam(){
   const picker=document.getElementById('artCatPicker');
-  const catEmoji={'Sadje':'🍎','Zelenjava':'🥦','Jajca in mlečni':'🥛','Pekarna':'🍞','Suha živila':'🫘','Zamrznjeno':'❄️','Začimbe in omake':'🧂','Dodatki za peko':'🎂','Pijače':'🧃','Sladkarije':'🍫','Osebna nega':'🧴','Čistila':'🧹','Ostalo':'📦'};
+  const catEmoji={'Sadje':'🍎','Zelenjava':'🥦','Jajca in mlečni izdelki':'🥛','Pekarna':'🍞','Suha živila':'🫘','Zamrznjeno':'❄️','Začimbe in omake':'🧂','Dodatki za peko':'🎂','Pijače':'🧃','Sladkarije':'🍫','Osebna nega':'🧴','Čistila':'🧹','Ostalo':'📦'};
   if(picker){
     picker.innerHTML='';
     getCategories().forEach(cat=>{
