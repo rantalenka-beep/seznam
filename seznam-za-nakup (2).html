@@ -126,10 +126,9 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
   <div style="background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);margin-bottom:16px;">Dobrodošli v Nakupovalni listki! 🛒</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">🗒️ Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Lahko jih pošlješ drugim.</div>
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kar želiš kupiti. Iščeš po področjih (sadje, zelenjava...) ali po imenu (npr. cvetača). Pri vsakem artiklu lahko izbereš tudi trgovino v kateri ga želiš kupiti in avtomatsko se ustvari listek za izbrano trgovino.</div>
-      <div style="margin-bottom:12px;"><strong style="color:var(--text);">✏️ Urejanje</strong><br>Lahko dodajaš, odvzemaš in razvrščaš po pomembnosti področja, trgovine in artikle (sledi gumbu za urejanje).</div>
-      <div><strong style="color:var(--text);">📂 Shranjeni listki</strong><br>Shrani listke za kasnejšo uporabo.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">🗒️ Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Ustvarjene listke lahko spreminjaš, pošlješ drugim in shraniš za kasnejšo uporabo.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kaj nameravaš kupiti. Iščeš lahko po imenu (npr. cvetača) ali po področjih (sadje, mlečni izdelki...). Lahko izbereš trgovino v kateri želiš kupiti izdelek in s tem samodejno ustvariš listek za trgovino ali več trgovin v katerih nakupuješ.</div>
+      <div><strong style="color:var(--text);">✏️ Urejanje</strong><br>Področja, artikle in trgovine lahko dodajaš, odstranjuješ in razvrščaš po pomembnosti (sledi gumbu za urejanje).</div>
     </div>
     <button onclick="document.getElementById('welcomeModal').style.display='none';localStorage.setItem('nakup-welcome','1');" style="width:100%;padding:13px;background:var(--accent-btn);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;">Razumem, začnimo! →</button>
     <div style="text-align:right;margin-top:12px;font-size:12px;color:var(--text3);">— Alenka</div>
@@ -1216,14 +1215,51 @@ function renderKosarica(){
     hdr.appendChild(delBtn2);
     card.appendChild(hdr);
 
-    // Artikli
+    // Artikli razporejeni po področjih
     if(al.artikli&&al.artikli.length){
-      al.artikli.forEach(a=>{
-        const row=document.createElement('div');
-        row.style.cssText='background:white;border-radius:var(--radius-sm);margin-bottom:5px;padding:9px 12px;display:flex;align-items:center;font-size:14px;';
-        const shopTags=a.shops&&a.shops.length?a.shops.map(s=>`<span style="font-size:11px;font-weight:600;color:${getShopColor(s)};margin-left:4px;">${getShopName(s)}</span>`).join(''):'';
-        row.innerHTML=`<span style="flex:1;">${escHtml(a.name)}${a.qty>1?`<span style="color:var(--text3);font-size:12px;"> ×${a.qty}</span>`:''}</span><button onclick="activeLists[${idx}].artikli.splice(${al.artikli.indexOf(a)},1);saveActiveLists();renderKosarica();" style="border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;">×</button>`;
-        card.appendChild(row);
+      // Zberi unikatna področja v vrstnem redu
+      const cats=[...new Set(al.artikli.map(a=>{
+        // Če cat ni shranjen, poišči iz DEFAULT_ITEMS
+        if(a.cat)return a.cat;
+        const found=items.find(i=>i.name===a.name);
+        return found?found.cat:'Ostalo';
+      }))];
+      cats.forEach(cat=>{
+        const catItems=al.artikli.filter(a=>(a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo')===cat);
+        if(!catItems.length)return;
+        // Področje naslov
+        const catHdr=document.createElement('div');
+        const bgColor=catColorMap[cat]||'#f5f5f5';
+        const borderColor=catBorderMap[cat]||'#ddd';
+        catHdr.style.cssText=`font-size:11px;font-weight:600;color:var(--text2);padding:4px 8px;margin:6px 0 3px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:2px;`;
+        catHdr.textContent=cat;
+        card.appendChild(catHdr);
+        catItems.forEach(a=>{
+          const ai=al.artikli.indexOf(a);
+          const row=document.createElement('div');
+          const done=a.done||false;
+          row.style.cssText=`background:white;border-radius:var(--radius-sm);margin-bottom:4px;padding:8px 12px;display:flex;align-items:center;font-size:14px;${done?'opacity:0.4;':''}`;
+          const nameSpan=document.createElement('span');
+          nameSpan.style.cssText=`flex:1;${done?'text-decoration:line-through;color:var(--text3);':''}`;
+          nameSpan.textContent=a.name+(a.qty>1?' ×'+a.qty:'');
+          // Checkbox za označevanje v trgovini
+          const doneChk=document.createElement('input');
+          doneChk.type='checkbox';
+          doneChk.checked=done;
+          doneChk.style.cssText='width:18px;height:18px;accent-color:var(--accent);cursor:pointer;margin-right:8px;flex-shrink:0;';
+          doneChk.onchange=()=>{
+            activeLists[idx].artikli[ai].done=doneChk.checked;
+            saveActiveLists();renderKosarica();
+          };
+          const delBtn=document.createElement('button');
+          delBtn.style.cssText='border:none;background:transparent;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;';
+          delBtn.textContent='×';
+          delBtn.onclick=()=>{activeLists[idx].artikli.splice(ai,1);saveActiveLists();renderKosarica();};
+          row.appendChild(doneChk);
+          row.appendChild(nameSpan);
+          row.appendChild(delBtn);
+          card.appendChild(row);
+        });
       });
     } else {
       const empty2=document.createElement('div');
@@ -1937,52 +1973,6 @@ function renderShranjeni(){
   addFolderRow.appendChild(addFolderInp);addFolderRow.appendChild(addFolderBtn);
   container.appendChild(addFolderRow);
 
-  // Vsi listki mapa
-  const vsiHdr=document.createElement('div');
-  vsiHdr.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;border-bottom:1px solid var(--border);margin-bottom:8px;';
-  vsiHdr.innerHTML=`<span style="font-size:16px;">${showVsi?'📂':'📁'}</span><span style="font-weight:600;color:var(--text);flex:1;">Vsi listki</span><span style="font-size:12px;color:var(--text3);">${savedLists.length} listkov</span><span style="color:var(--text3);font-size:12px;">${showVsi?'▴':'▾'}</span>`;
-  vsiHdr.onclick=()=>{window._showVsiListki=!showVsi;renderShranjeni();};
-  container.appendChild(vsiHdr);
-  if(showVsi){
-    savedLists.forEach((s,idx)=>{
-      const miniCard=document.createElement('div');
-      miniCard.className='item-card shranj-card';
-      // Glava z checkboxom
-      const miniGlava=document.createElement('div');
-      miniGlava.style.cssText='display:flex;align-items:center;gap:8px;padding:10px 13px;border-bottom:1px solid var(--border);';
-      const miniChk=document.createElement('input');
-      miniChk.type='checkbox';
-      miniChk.style.cssText='width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;';
-      miniChk.checked=window._selectedShranjeni&&window._selectedShranjeni.includes(s.id)||false;
-      miniChk.onchange=()=>{
-        if(!window._selectedShranjeni)window._selectedShranjeni=[];
-        if(miniChk.checked){if(!window._selectedShranjeni.includes(s.id))window._selectedShranjeni.push(s.id);}
-        else window._selectedShranjeni=window._selectedShranjeni.filter(i=>i!==s.id);
-        updateShranjeniBar();
-      };
-      const shop=s.shopId&&s.shopId!=='splosno'?getShops().find(sh=>sh.id===s.shopId):null;
-      const miniTitle=document.createElement('div');
-      miniTitle.style.cssText=`flex:1;font-weight:600;font-size:13px;color:${shop?shop.color:'var(--accent)'};`;
-      miniTitle.textContent=(shop?shop.name:'Splošni')+' — '+(s.datum||'');
-      const miniDel=document.createElement('button');
-      miniDel.style.cssText='border:none;background:transparent;color:var(--text3);font-size:14px;cursor:pointer;';
-      miniDel.textContent='🗑️';
-      miniDel.onclick=()=>showDelConfirm(miniDel,'Izbrisati listek?',()=>{savedLists.splice(idx,1);saveSaved();renderShranjeni();showToast('Listek izbrisan');});
-      miniGlava.appendChild(miniChk);miniGlava.appendChild(miniTitle);miniGlava.appendChild(miniDel);
-      miniCard.appendChild(miniGlava);
-      // Artikli
-      const miniVseb=document.createElement('div');
-      miniVseb.style.cssText='padding:8px 13px;font-size:13px;color:var(--text2);';
-      s.artikli.slice(0,5).forEach(a=>{
-        const r=document.createElement('div');r.style.cssText='padding:3px 0;';
-        r.textContent='• '+a.name+(a.qty>1?' ×'+a.qty:'');miniVseb.appendChild(r);
-      });
-      if(s.artikli.length>5){const m=document.createElement('div');m.style.cssText='color:var(--text3);font-size:11px;padding-top:3px;';m.textContent='+ '+(s.artikli.length-5)+' več...';miniVseb.appendChild(m);}
-      miniCard.appendChild(miniVseb);
-      container.appendChild(miniCard);
-    });
-  }
-
   // Po mapah
   folders.forEach(folder=>{
     const folderLists=savedLists.map((s,idx)=>({s,idx})).filter(({s})=>(s.folder||'Splošni')===folder);
@@ -2008,55 +1998,23 @@ function renderShranjeni(){
 
     // GLAVA — datum, ime, gumbi
     const glava=document.createElement('div');
-    glava.style.cssText='display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--border);';
+    glava.style.cssText='display:flex;align-items:center;gap:8px;padding:11px 13px;';
     const imeDiv=document.createElement('div');
     imeDiv.style.cssText='flex:1;min-width:0;';
     const imeNaslov=document.createElement('div');
-    imeNaslov.style.cssText='font-size:14px;font-weight:600;color:var(--text);';
-    imeNaslov.textContent=s.datum||s.ime;
-    const imeHint=document.createElement('div');
-    imeHint.style.cssText='font-size:11px;color:var(--text3);margin-top:2px;';
-    imeHint.textContent=s.artikli.length+' artiklov';
-    const imeEdit=document.createElement('input');
-    imeEdit.type='text';
-    imeEdit.value=s.ime;
-    imeEdit.placeholder='Vpiši ime seznama...';
-    imeEdit.style.cssText='display:none;font-size:13px;padding:4px 8px;margin-top:4px;width:100%;border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:\'DM Sans\',sans-serif;';
-    const imeHintEdit=document.createElement('div');
-    imeHintEdit.style.cssText='font-size:11px;color:var(--text3);margin-top:3px;display:none;';
-    imeHintEdit.textContent='Tu lahko spreminjaš ime seznama';
+    imeNaslov.style.cssText='font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;';
+    const shop2=s.shopId&&s.shopId!=='splosno'?getShops().find(sh=>sh.id===s.shopId):null;
+    const shopLabel=document.createElement('span');
+    shopLabel.style.cssText=`color:${shop2?shop2.color:'var(--accent)'};`;
+    shopLabel.textContent=shop2?shop2.name:'Splošni';
+    const datumLabel=document.createElement('span');
+    datumLabel.style.cssText='color:var(--text3);font-weight:400;font-size:12px;';
+    datumLabel.textContent=s.datum||'';
+    imeNaslov.appendChild(shopLabel);
+    imeNaslov.appendChild(datumLabel);
     imeDiv.appendChild(imeNaslov);
-    imeDiv.appendChild(imeHint);
-    imeDiv.appendChild(imeEdit);
-    imeDiv.appendChild(imeHintEdit);
     const gumbi=document.createElement('div');
     gumbi.style.cssText='display:flex;gap:5px;flex-shrink:0;';
-
-    // Preimenuj
-    const btnIme=document.createElement('button');
-    btnIme.style.cssText='padding:4px 7px;background:transparent;color:var(--text3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);font-size:11px;cursor:pointer;';
-    btnIme.textContent='✏️';
-    btnIme.title='Preimenuj';
-    btnIme.onclick=()=>{
-      const editing=imeEdit.style.display==='block';
-      if(editing){
-        // Shrani
-        const novoIme=imeEdit.value.trim();
-        if(novoIme){savedLists[idx].ime=novoIme;saveSaved();imeNaslov.textContent=novoIme;}
-        imeEdit.style.display='none';
-        imeHintEdit.style.display='none';
-        imeNaslov.style.display='';
-        btnIme.textContent='✏️';
-      } else {
-        // Odpri
-        imeEdit.style.display='block';
-        imeHintEdit.style.display='block';
-        imeNaslov.style.display='none';
-        imeEdit.focus();
-        btnIme.textContent='✓';
-      }
-    };
-    imeEdit.onkeydown=(e)=>{if(e.key==='Enter')btnIme.onclick();};
 
     // Deli
     const btnDeli=document.createElement('button');
@@ -2124,29 +2082,44 @@ function renderShranjeni(){
     const karticaBarva=prvaTrgovina?prvaTrgovina.color:'var(--accent)';
     card.style.cssText=`margin-bottom:16px;border:2px solid ${karticaBarva}40;border-radius:var(--radius);overflow:hidden;background:var(--surface);`;
 
-    // Po trgovinah — najprej
+    // Po področjih znotraj vsake trgovine
     const imaTragovine=getShops().some(sh=>s.artikli.some(a=>a.shops&&a.shops.includes(sh.id)));
     getShops().forEach(shop=>{
       const shopItems=s.artikli.filter(a=>a.shops&&a.shops.includes(shop.id));
       if(!shopItems.length)return;
       const shopHdr=document.createElement('div');
       shopHdr.style.cssText=`font-size:12px;font-weight:600;color:${shop.color};margin:10px 0 5px;text-transform:uppercase;letter-spacing:0.05em;${imaTragovine?'border-top:1px solid '+shop.color+'20;padding-top:8px;':''}`;
-      shopHdr.textContent=shop.name+' — listek za nakup';
+      shopHdr.textContent=shop.name;
       vsebina.appendChild(shopHdr);
-      shopItems.forEach((a,ai)=>{
-        vsebina.appendChild(buildShranjenRow(a,idx,ai,shop.id));
+      // Razporedi po področjih
+      const cats=[...new Set(shopItems.map(a=>a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo'))];
+      cats.forEach(cat=>{
+        const catItems=shopItems.filter(a=>(a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo')===cat);
+        if(!catItems.length)return;
+        const catHdr=document.createElement('div');
+        catHdr.style.cssText=`font-size:11px;font-weight:600;color:var(--text2);padding:3px 6px;margin:5px 0 2px;background:${catColorMap[cat]||'#f5f5f5'};border-left:3px solid ${catBorderMap[cat]||'#ddd'};border-radius:2px;`;
+        catHdr.textContent=cat;
+        vsebina.appendChild(catHdr);
+        catItems.forEach((a,ai)=>vsebina.appendChild(buildShranjenRow(a,idx,ai,shop.id)));
       });
     });
 
-    // Skupni seznam — na dnu, SAMO če listek ni za specifično trgovino
+    // Skupni seznam — razporejen po področjih
     const skupniItems=s.artikli.filter(a=>!a.shops||!a.shops.length);
     if(skupniItems.length&&(!s.shopId||s.shopId==='splosno')){
       const skupniHdr=document.createElement('div');
       skupniHdr.style.cssText='font-size:12px;font-weight:600;color:var(--accent);margin:10px 0 5px;text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid rgba(212,96,122,0.2);padding-top:8px;';
-      skupniHdr.textContent='Listek za nakup (splošni)';
+      skupniHdr.textContent='Splošni';
       vsebina.appendChild(skupniHdr);
-      skupniItems.forEach((a,ai)=>{
-        vsebina.appendChild(buildShranjenRow(a,idx,ai,''));
+      const cats=[...new Set(skupniItems.map(a=>a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo'))];
+      cats.forEach(cat=>{
+        const catItems=skupniItems.filter(a=>(a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo')===cat);
+        if(!catItems.length)return;
+        const catHdr=document.createElement('div');
+        catHdr.style.cssText=`font-size:11px;font-weight:600;color:var(--text2);padding:3px 6px;margin:5px 0 2px;background:${catColorMap[cat]||'#f5f5f5'};border-left:3px solid ${catBorderMap[cat]||'#ddd'};border-radius:2px;`;
+        catHdr.textContent=cat;
+        vsebina.appendChild(catHdr);
+        catItems.forEach((a,ai)=>vsebina.appendChild(buildShranjenRow(a,idx,ai,'')));
       });
     }
 
