@@ -1970,6 +1970,7 @@ function renderShranjeni(){
         if(!window._selectedShranjeni)window._selectedShranjeni=[];
         if(miniChk.checked){if(!window._selectedShranjeni.includes(s.id))window._selectedShranjeni.push(s.id);}
         else window._selectedShranjeni=window._selectedShranjeni.filter(i=>i!==s.id);
+        updateShranjeniBar();
       };
       const shop=s.shopId&&s.shopId!=='splosno'?getShops().find(sh=>sh.id===s.shopId):null;
       const miniTitle=document.createElement('div');
@@ -2116,6 +2117,7 @@ function renderShranjeni(){
       } else {
         window._selectedShranjeni=window._selectedShranjeni.filter(i=>i!==s.id);
       }
+      updateShranjeniBar();
     };
     glava.insertBefore(chk,glava.firstChild);
     gumbi.appendChild(btnFolder);
@@ -2859,8 +2861,10 @@ function deliIzbraneAktivne(){
     if(al.note&&al.note.trim())tekst+='📝 '+al.note+'\n';
     tekst+='\n';
   });
+  window._selectedActive=[];
   if(navigator.share)navigator.share({title:'Nakupovalni listki',text:tekst});
   else navigator.clipboard.writeText(tekst).then(()=>showToast('Listki kopirani!'));
+  renderKosarica();
 }
 
 function deliVseListke(){
