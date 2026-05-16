@@ -202,7 +202,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
 <script>
 const SHOPS=[
-  {id:'spar',name:'Špar',color:'#2e8b57'},
+  {id:'spar',name:'Spar',color:'#2e8b57'},
   {id:'lidl',name:'Lidl',color:'#0050a0'},
   {id:'hofer',name:'Hofer',color:'#c8102e'},
   {id:'muller',name:'Müller',color:'#e31e24'},
@@ -273,6 +273,26 @@ function migrateItems(){
   }));
   if(changed)save();
 }
+
+// Samodejno popravi stara imena trgovin in odstrani duplikate
+(function fixShopNames(){
+  try{
+    const fixes={'Špar':'Spar','Merkator':'Mercator'};
+    ['nakup-shop-order','nakup-user-shops'].forEach(key=>{
+      const o=localStorage.getItem(key);
+      if(!o)return;
+      let shops=JSON.parse(o);
+      shops=shops.map(s=>({...s,name:fixes[s.name]||s.name}));
+      const seen=new Set();
+      shops=shops.filter(s=>{
+        const k=s.name.toLowerCase();
+        if(seen.has(k))return false;
+        seen.add(k);return true;
+      });
+      localStorage.setItem(key,JSON.stringify(shops));
+    });
+  }catch(e){}
+})();
 
 let items=loadItems();
 migrateItems();
@@ -1611,8 +1631,22 @@ function potrdiIzbrisiShop(shopId){
 }
 
 function getShops(){
-  try{const o=localStorage.getItem('nakup-shop-order');if(o)return JSON.parse(o).filter(s=>s&&s.id&&!hiddenShops.includes(s.id));}catch(e){}
-  return[...SHOPS,...userShops].filter(s=>s&&s.id&&!hiddenShops.includes(s.id));
+  try{
+    const o=localStorage.getItem('nakup-shop-order');
+    if(o){
+      const ordered=JSON.parse(o).filter(s=>s&&s.id&&!hiddenShops.includes(s.id));
+      const orderedIds=new Set(ordered.map(s=>s.id));
+      // Dodaj samo userShops ki jih še NI v vrstnem redu
+      const missing=userShops.filter(s=>!orderedIds.has(s.id)&&!hiddenShops.includes(s.id));
+      return[...missing,...ordered];
+    }
+  }catch(e){}
+  // Brez shranjenega vrstnega reda — dedupliciraj
+  const seen=new Set();
+  return[...userShops,...SHOPS].filter(s=>{
+    if(!s||!s.id||hiddenShops.includes(s.id)||seen.has(s.id))return false;
+    seen.add(s.id);return true;
+  });
 }
 
 function getCategories(){
@@ -1942,8 +1976,8 @@ function renderShranjeni(){
   if(empty)empty.style.display='none';
 
   // Zberi vse mape + dodaj "Vsi listki"
-  const allFolders=['Splošni',...getShops().map(s=>s.name),...savedFolders];
-  const usedFolders=[...new Set(savedLists.map(s=>s.folder||'Splošni'))];
+  const allFolders=['Kjerkoli',...getShops().map(s=>s.name),...savedFolders];
+  const usedFolders=[...new Set(savedLists.map(s=>s.folder||'Kjerkoli'))];
   const folders=[...allFolders.filter(f=>usedFolders.includes(f)),...usedFolders.filter(f=>!allFolders.includes(f))];
   const showVsi=window._showVsiListki||false;
 
@@ -2180,17 +2214,23 @@ function buildShranjenRow(a,listIdx,artIdx,shopId){
 
 function deliShranjen(idx){
   const s=savedLists[idx];
-  let tekst=`🛒 ${s.ime}\n${s.datum}\n\n`;
+  const shop=s.shopId&&s.shopId!=='splosno'?getShops().find(sh=>sh.id===s.shopId):null;
+  const naslov=s.imeListka||(shop?shop.name:'Kjerkoli');
+  let tekst=`🛒 ${naslov}\n\n`;
   // Grupiraj po področjih
   const cats={};
-  s.artikli.forEach(a=>{if(!cats[a.cat])cats[a.cat]=[];cats[a.cat].push(a);});
+  s.artikli.forEach(a=>{
+    const cat=a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo';
+    if(!cats[cat])cats[cat]=[];
+    cats[cat].push(a);
+  });
   Object.entries(cats).forEach(([cat,arr])=>{
     tekst+=cat+':\n';
     arr.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
     tekst+='\n';
   });
-  if(s.note)tekst+='📝 '+s.note+'\n';
-  if(navigator.share)navigator.share({title:s.ime,text:tekst});
+  if(s.note&&s.note.trim())tekst+='📝 '+s.note+'\n';
+  if(navigator.share)navigator.share({title:naslov,text:tekst});
   else navigator.clipboard.writeText(tekst).then(()=>showToast('Listek kopiran!'));
 }
 
@@ -2427,25 +2467,24 @@ function potrdiOdznaci(){
 }
 
 function novAktivniListek(shopId){
-  // Preveri ali listek za to trgovino že obstaja
+  // Preveri ali listek že obstaja — direktno v artikle
   const obstojeciIdx=activeLists.findIndex(al=>al.shopId===shopId||(shopId==='splosno'&&(!al.shopId||al.shopId==='splosno')));
   if(obstojeciIdx!==-1){
     _activeListIdx=obstojeciIdx;
-    const shopName=shopId==='splosno'?'splošni':getShops().find(s=>s.id===shopId)?.name||shopId;
-    showView('kosarica');
-    setTimeout(()=>{
-      showToast('Aktivni listek za '+shopName+' že obstaja!');
-      // Scroll na obstoječi listek
-      const cards=document.querySelectorAll('#kosaricaList .al-card');
-      if(cards[obstojeciIdx]){
-        cards[obstojeciIdx].scrollIntoView({behavior:'smooth',block:'center'});
-        cards[obstojeciIdx].style.outline='2px solid var(--accent)';
-        setTimeout(()=>cards[obstojeciIdx].style.outline='',1500);
-      }
-    },200);
+    const al=activeLists[obstojeciIdx];
+    items.forEach(i=>{i.checked=false;i.shops=[];});
+    al.artikli.forEach(a=>{
+      const item=items.find(i=>i.name===a.name);
+      if(item){item.checked=true;item.shops=[...(a.shops||[])];item.qty=a.qty||1;}
+    });
+    extraItems=al.extra?al.extra.map(e=>({...e})):[];
+    listek_tip=shopId==='splosno'?'splosno':shopId;
+    window._dodajZaTrgovino=shopId!=='splosno'?shopId:null;
+    save();
+    showView('nakup');
     return;
   }
-  // Ustvari nov listek
+  // Ustvari nov listek — direktno v artikle
   const datum=new Date().toLocaleDateString('sl-SI');
   const shop=shopId==='splosno'?null:getShops().find(s=>s.id===shopId);
   const ime=(shop?shop.name:'Splošni')+' — '+datum;
@@ -2458,6 +2497,7 @@ function novAktivniListek(shopId){
   window._shopNotes={};window._skupniNote='';
   save();
   listek_tip=shopId==='splosno'?'splosno':shopId;
+  window._dodajZaTrgovino=shopId!=='splosno'?shopId:null;
   showView('nakup');
 }
 
@@ -2538,7 +2578,7 @@ function shraniAktivniListek(idx){
     al.artikli=al.artikli.map(a=>({...a,shops:a.shops&&a.shops.length?a.shops:[al.shopId]}));
     if(!al.folder){const shopName=getShops().find(s=>s.id===al.shopId)?.name||al.shopId;al.folder=shopName;}
   } else {
-    if(!al.folder)al.folder='Splošni';
+    if(!al.folder)al.folder='Kjerkoli';
   }
   savedLists.unshift({...al});
   saveSaved();
@@ -2611,7 +2651,7 @@ function novListek(){
       al.artikli=al.artikli.map(a=>({...a,shops:a.shops&&a.shops.length?a.shops:[al.shopId]}));
       if(!al.folder){const shopName=getShops().find(s=>s.id===al.shopId)?.name||al.shopId;al.folder=shopName;}
     } else {
-      if(!al.folder)al.folder='Splošni';
+      if(!al.folder)al.folder='Kjerkoli';
     }
     savedLists.unshift({...al});
   }
@@ -2795,7 +2835,7 @@ function shraniIzbrane(){
       alCopy.artikli=(alCopy.artikli||[]).map(a=>({...a,shops:a.shops&&a.shops.length?a.shops:[alCopy.shopId]}));
       if(!alCopy.folder){alCopy.folder=getShops().find(s=>s.id===alCopy.shopId)?.name||alCopy.shopId;}
     } else {
-      if(!alCopy.folder)alCopy.folder='Splošni';
+      if(!alCopy.folder)alCopy.folder='Kjerkoli';
     }
     savedLists.unshift(alCopy);
   });
