@@ -489,7 +489,7 @@ function renderNakup(){
   const catBar=document.getElementById('catBar');
   catBar.innerHTML='';
   if(!searchVal){
-    const VIDNIH=6;
+    const VIDNIH=4;
     const activeCats=getCategories().filter(cat=>items.some(i=>i.cat===cat)||userCats.includes(cat));
     const urediPodrocja=window._urediPodrocja||false;
 
@@ -507,12 +507,14 @@ function renderNakup(){
       const label=document.createElement('span');
       label.textContent=cat;
       label.onclick=()=>{
-        if(urediPodrocja)return; // v uredi načinu klik ne odpira
-        _aktivnoPodrocje=(_aktivnoPodrocje===cat)?null:cat;
+        if(urediPodrocja)return;
+        const novoAktivno=(_aktivnoPodrocje===cat)?null:cat;
+        _aktivnoPodrocje=novoAktivno;
         _urediMode=false;
+        // Samodejno zoži — skrij ostala področja ko je eno aktivno
+        window._vsaPodrocja=false;
         renderNakup();
         if(_aktivnoPodrocje){
-          // Dvojni timeout — prvi za render, drugi za browser layout
           setTimeout(()=>{
             setTimeout(()=>{
               const el=document.getElementById('cat-'+cat.replace(/\s+/g,'-'));
@@ -586,7 +588,7 @@ function renderNakup(){
     if(!urediPodrocja){
       // Samo Uredi področja gumb
       const urediBtn=document.createElement('button');
-      urediBtn.textContent='✏️ Uredi področja';
+      urediBtn.textContent='Uredi';
       urediBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
       urediBtn.onclick=(e)=>{e.stopPropagation();window._urediPodrocja=true;_aktivnoPodrocje=null;window._vsaPodrocja=false;renderNakup();};
       catBar.appendChild(urediBtn);
@@ -671,16 +673,7 @@ function renderNakup(){
   const banner=document.getElementById('listek-tip-banner');
   const bannerText=document.getElementById('listek-tip-banner-text');
   if(banner&&bannerText){
-    if(listek_tip!=='splosno'){
-      const shop=getShops().find(s=>s.id===listek_tip);
-      banner.style.display='flex';
-      banner.style.background=shop?shop.color+'18':'var(--accent-light)';
-      banner.style.color=shop?shop.color:'var(--accent-dark)';
-      banner.style.border=`1px solid ${shop?shop.color+'40':'rgba(212,96,122,0.2)'}`;
-      bannerText.textContent=`Izberi artikle za nakup v trgovini ${shop?shop.name:'?'}`;
-    } else {
-      banner.style.display='none';
-    }
+    banner.style.display='none';
   }
 
   // Barve po kategorijah
@@ -2764,7 +2757,14 @@ function deliAktivniListek(idx){
   const shop=al.shopId&&al.shopId!=='splosno'?getShops().find(s=>s.id===al.shopId):null;
   const naslov=shop?shop.name+' — listek za nakup':al.ime;
   let tekst=`🛒 ${naslov}\n\n`;
-  al.artikli.forEach(a=>tekst+=`  • ${a.name}${a.qty>1?' ×'+a.qty:''}\n`);
+  // Razporedi po področjih
+  const cats=[...new Set((al.artikli||[]).map(a=>a.cat||'Ostalo'))];
+  cats.forEach(cat=>{
+    const catItems=(al.artikli||[]).filter(a=>(a.cat||'Ostalo')===cat);
+    if(!catItems.length)return;
+    tekst+=`${cat}:\n`;
+    catItems.forEach(a=>tekst+=`  • ${a.name}${a.qty>1?' ×'+a.qty:''}\n`);
+  });
   if(al.extra&&al.extra.length){tekst+='\nDodatno:\n';al.extra.forEach(e=>tekst+=`  • ${e.name}\n`);}
   if(al.note&&al.note.trim())tekst+='\n📝 '+al.note+'\n';
   if(navigator.share)navigator.share({title:naslov,text:tekst});
