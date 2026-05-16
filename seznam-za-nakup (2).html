@@ -1205,16 +1205,6 @@ function renderKosarica(){
     titleDiv.style.cssText=`color:${colorHex};flex:1;`;
     titleDiv.textContent=title;
     // Gumbi
-    const deliBtn=document.createElement('button');
-    deliBtn.className='btn';
-    deliBtn.style.cssText=`margin-left:auto;padding:4px 9px;font-size:11px;color:${colorHex};border-color:${colorHex}30;`;
-    deliBtn.textContent='📤 Deli';
-    deliBtn.onclick=()=>deliAktivniListek(idx);
-    const shrBtn=document.createElement('button');
-    shrBtn.className='btn';
-    shrBtn.style.cssText='padding:4px 9px;font-size:11px;color:#0050a0;border-color:rgba(0,80,160,0.3);';
-    shrBtn.textContent='💾 Shrani';
-    shrBtn.onclick=()=>shraniAktivniListek(idx);
     const delBtn2=document.createElement('button');
     delBtn2.className='btn';
     delBtn2.id='del-al-'+idx;
@@ -1223,8 +1213,6 @@ function renderKosarica(){
     delBtn2.onclick=()=>showDelConfirm(delBtn2,'Izbriši listek?',()=>izbrisiAktivniListek(idx));
     hdr.appendChild(alChk);
     hdr.appendChild(titleDiv);
-    hdr.appendChild(deliBtn);
-    hdr.appendChild(shrBtn);
     hdr.appendChild(delBtn2);
     card.appendChild(hdr);
 
