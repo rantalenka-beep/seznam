@@ -2899,13 +2899,14 @@ function deliAktivniListek(idx){
   const shop=al.shopId&&al.shopId!=='splosno'?getShops().find(s=>s.id===al.shopId):null;
   const naslov=shop?shop.name+' — listek za nakup':al.ime;
   let tekst=`🛒 ${naslov}\n\n`;
-  // Razporedi po področjih
-  const cats=[...new Set((al.artikli||[]).map(a=>a.cat||'Ostalo'))];
+  // Razporedi po področjih — z fallback iz items array
+  const cats=[...new Set((al.artikli||[]).map(a=>a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo'))];
   cats.forEach(cat=>{
-    const catItems=(al.artikli||[]).filter(a=>(a.cat||'Ostalo')===cat);
+    const catItems=(al.artikli||[]).filter(a=>(a.cat||items.find(i=>i.name===a.name)?.cat||'Ostalo')===cat);
     if(!catItems.length)return;
     tekst+=`${cat}:\n`;
     catItems.forEach(a=>tekst+=`  • ${a.name}${a.qty>1?' ×'+a.qty:''}\n`);
+    tekst+='\n';
   });
   if(al.extra&&al.extra.length){tekst+='\nDodatno:\n';al.extra.forEach(e=>tekst+=`  • ${e.name}\n`);}
   if(al.note&&al.note.trim())tekst+='\n📝 '+al.note+'\n';
