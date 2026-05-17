@@ -1144,7 +1144,17 @@ function renderListekTipBar(){
       xBtn.onclick=(ev)=>{
         ev.stopPropagation();
         showDelConfirm(xBtn,'Izbriši "'+shop.name+'"?',()=>{
-          if(isUser){userShops=userShops.filter(s=>s.id!==shop.id);saveUserShops();}
+          if(isUser){
+            userShops=userShops.filter(s=>s.id!==shop.id);
+            saveUserShops();
+            // Odstrani tudi iz shop-order
+            try{
+              const o=JSON.parse(localStorage.getItem('nakup-shop-order')||'null');
+              if(o){
+                localStorage.setItem('nakup-shop-order',JSON.stringify(o.filter(s=>s.id!==shop.id)));
+              }
+            }catch(e){}
+          }
           else{hiddenShops.push(shop.id);try{localStorage.setItem('nakup-hidden-shops',JSON.stringify(hiddenShops));}catch(e){}}
           renderListekTipBar();showToast('Trgovina "'+shop.name+'" odstranjena');
         });
