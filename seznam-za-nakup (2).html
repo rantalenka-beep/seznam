@@ -591,7 +591,7 @@ function renderNakup(){
     if(hasSkritih && !urediPodrocja){
       const vecBtn=document.createElement('button');
       const skritih=activeCats.filter((_,i)=>i>=VIDNIH).length;
-      vecBtn.textContent=window._vsaPodrocja?'Manj ▴':`Več (${skritih}) ▾`;
+      vecBtn.textContent=window._vsaPodrocja?'Manj ▴':'Več ▾';
       vecBtn.style.cssText='padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:\'DM Sans\',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;';
       vecBtn.onclick=()=>{
         window._vsaPodrocja=!window._vsaPodrocja;
@@ -994,7 +994,7 @@ function renderNakup(){
     if(skritih>0||showVec){
       const vecBtn=document.createElement('button');
       vecBtn.style.cssText='width:100%;padding:7px;background:transparent;border:none;border-top:0.5px solid rgba(0,0,0,0.06);font-size:12px;color:var(--text3);cursor:pointer;font-family:\'DM Sans\',sans-serif;';
-      vecBtn.textContent=showVec?'▴ Manj':`Več ${skritih} ▾`;
+      vecBtn.textContent=showVec?'▴ Manj':'Več ▾';
       vecBtn.onclick=()=>{
         if(!window._vecArtikli)window._vecArtikli={};
         window._vecArtikli[vecKey]=!showVec;
@@ -1158,7 +1158,7 @@ function renderListekTipBar(){
   if(!urediMode){
     if(shops.length>VIDNIH_SHOP){
       const vecBtn=document.createElement('button');
-      vecBtn.textContent=vseTrgovine?'Manj ▴':'Več '+(shops.length-VIDNIH_SHOP)+' ▾';
+      vecBtn.textContent=vseTrgovine?'Manj ▴':'Več ▾';
       vecBtn.style.cssText="padding:5px 11px;border:1.5px solid var(--accent);border-radius:20px;background:transparent;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--accent);cursor:pointer;white-space:nowrap;";
       vecBtn.onclick=()=>{window._vseTrgovine=!vseTrgovine;renderListekTipBar();};
       grid.appendChild(vecBtn);
@@ -2063,7 +2063,7 @@ function updateShranjeniBar(){
         if(!cats[cat])cats[cat]=[];cats[cat].push(a);
       });
       Object.entries(cats).forEach(([cat,arr])=>{
-        tekst+=cat+':\n';
+        tekst+=cat.toUpperCase()+':\n';
         arr.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
         tekst+='\n';
       });
@@ -2346,7 +2346,7 @@ function deliShranjen(idx){
     cats[cat].push(a);
   });
   Object.entries(cats).forEach(([cat,arr])=>{
-    tekst+=cat+':\n';
+    tekst+=cat.toUpperCase()+':\n';
     arr.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
     tekst+='\n';
   });
@@ -2929,7 +2929,7 @@ function deliAktivniListek(idx){
   cats.forEach(cat=>{
     const catItems=(al.artikli||[]).filter(a=>getCat(a)===cat);
     if(!catItems.length)return;
-    tekst+=`${cat}:\n`;
+    tekst+=`${cat.toUpperCase()}:\n`;
     catItems.forEach(a=>tekst+=`  • ${a.name}${a.qty>1?' ×'+a.qty:''}\n`);
     tekst+='\n';
   });
@@ -2990,7 +2990,7 @@ function deliIzbraneAktivne(){
     cats.forEach(cat=>{
       const catItems=(al.artikli||[]).filter(a=>getCat(a)===cat);
       if(!catItems.length)return;
-      tekst+=cat+':\n';
+      tekst+=cat.toUpperCase()+':\n';
       catItems.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
       tekst+='\n';
     });
@@ -3040,7 +3040,7 @@ function deliSeznam(shopId){
     tekst='🛒 Nakupovalni listki:\n\n';
     getCategories().forEach(cat=>{
       const ci=checked.filter(i=>i.cat===cat);if(!ci.length)return;
-      tekst+=cat+':\n';
+      tekst+=cat.toUpperCase()+':\n';
       ci.forEach(i=>tekst+='  • '+i.name+(i.qty>1?' ×'+i.qty:'')+(i.shops&&i.shops.length?' ('+i.shops.map(getShopName).join(', ')+')':'')+'\n');
       tekst+='\n';
     });
