@@ -1314,6 +1314,12 @@ function renderKosarica(){
     titleDiv.style.cssText=`color:${colorHex};flex:1;`;
     titleDiv.textContent=title;
     // Gumbi
+    const deliBtn2=document.createElement('button');
+    deliBtn2.className='btn';
+    deliBtn2.style.cssText=`padding:4px 9px;font-size:11px;color:${colorHex};border-color:${colorHex}30;`;
+    deliBtn2.textContent='📤';
+    deliBtn2.title='Deli';
+    deliBtn2.onclick=()=>deliAktivniListek(idx);
     const delBtn2=document.createElement('button');
     delBtn2.className='btn';
     delBtn2.id='del-al-'+idx;
@@ -1322,6 +1328,7 @@ function renderKosarica(){
     delBtn2.onclick=()=>showDelConfirm(delBtn2,'Izbriši listek?',()=>izbrisiAktivniListek(idx));
     hdr.appendChild(alChk);
     hdr.appendChild(titleDiv);
+    hdr.appendChild(deliBtn2);
     hdr.appendChild(delBtn2);
     card.appendChild(hdr);
 
@@ -2042,8 +2049,17 @@ function updateShranjeniBar(){
     sel.forEach(sid=>{
       const s=savedLists.find(sl=>sl.id===sid);if(!s)return;
       const shop=s.shopId&&s.shopId!=='splosno'?getShops().find(sh=>sh.id===s.shopId):null;
-      tekst+=(shop?shop.name:'Splošni')+' — '+(s.datum||'')+' :\n';
-      s.artikli.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
+      tekst+='🛒 '+(s.imeListka||(shop?shop.name:'Kjerkoli'))+'\n\n';
+      const cats={};
+      s.artikli.forEach(a=>{
+        const cat=a.cat||items.find(i=>i.name===a.name)?.cat||DEFAULT_ITEMS.find(g=>g.items.includes(a.name))?.cat||'Ostalo';
+        if(!cats[cat])cats[cat]=[];cats[cat].push(a);
+      });
+      Object.entries(cats).forEach(([cat,arr])=>{
+        tekst+=cat+':\n';
+        arr.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
+        tekst+='\n';
+      });
       if(s.extra&&s.extra.length)s.extra.forEach(e=>tekst+='  • '+e.name+'\n');
       if(s.note&&s.note.trim())tekst+='📝 '+s.note+'\n';
       tekst+='\n';
@@ -2959,8 +2975,16 @@ function deliIzbraneAktivne(){
   let tekst='🛒 NAKUPOVALNI LISTKI\n\n';
   toShare.forEach(al=>{
     const shop=al.shopId&&al.shopId!=='splosno'?getShops().find(s=>s.id===al.shopId):null;
-    tekst+=(shop?shop.name:'Splošni')+':\n';
-    (al.artikli||[]).forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
+    tekst+='🛒 '+(shop?shop.name:'Kjerkoli')+'\n\n';
+    const getCat=a=>a.cat||items.find(i=>i.name===a.name)?.cat||DEFAULT_ITEMS.find(g=>g.items.includes(a.name))?.cat||'Ostalo';
+    const cats=[...new Set((al.artikli||[]).map(a=>getCat(a)))];
+    cats.forEach(cat=>{
+      const catItems=(al.artikli||[]).filter(a=>getCat(a)===cat);
+      if(!catItems.length)return;
+      tekst+=cat+':\n';
+      catItems.forEach(a=>tekst+='  • '+a.name+(a.qty>1?' ×'+a.qty:'')+'\n');
+      tekst+='\n';
+    });
     if(al.extra&&al.extra.length)al.extra.forEach(e=>tekst+='  • '+e.name+'\n');
     if(al.note&&al.note.trim())tekst+='📝 '+al.note+'\n';
     tekst+='\n';
