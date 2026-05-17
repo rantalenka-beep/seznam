@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nakup">
 <title>Nakupovalni listki</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#fdf8f9;--surface:#fff;--text:#1a1814;--text2:#6b6560;--text3:#a09890;
@@ -21,7 +21,7 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:90px;}
 header{background:var(--surface);border-bottom:1px solid var(--accent-border);padding:14px 16px 0;position:sticky;top:0;z-index:100;}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.app-title{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-0.3px;color:var(--accent);}
+.app-title{font-family:'Dancing Script',cursive;font-size:26px;letter-spacing:0;color:var(--accent);}
 .header-stats{font-size:13px;color:var(--text3);}
 .tab-bar{display:flex;gap:0;border-top:1px solid var(--accent-border);}
 .tab{flex:1;padding:10px 4px;border:none;border-bottom:2px solid transparent;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;text-align:center;transition:all 0.15s;}
@@ -123,7 +123,7 @@ select{padding:10px 8px;border:1px solid var(--border2);border-radius:var(--radi
 
 <div id="welcomeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center;padding:20px;">
   <div style="background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
-    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);margin-bottom:16px;">Dobrodošli v Nakupovalni listki! 🛒</div>
+    <div style="font-family:'Dancing Script',cursive;font-size:28px;color:var(--accent);margin-bottom:16px;">Dobrodošli v Nakupovalni listki! 🛒</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">
       <div style="margin-bottom:12px;"><strong style="color:var(--text);">🗒️ Listki</strong><br>Ustvari listek za splošen nakup ali za določeno trgovino. Ustvarjene listke lahko spreminjaš, pošlješ drugim in shraniš za kasnejšo uporabo.</div>
       <div style="margin-bottom:12px;"><strong style="color:var(--text);">📋 Artikli</strong><br>Iz seznama izberi kaj nameravaš kupiti. Iščeš lahko po imenu (npr. cvetača) ali po področjih (sadje, mlečni izdelki...). Lahko izbereš trgovino v kateri želiš kupiti izdelek in s tem samodejno ustvariš listek za trgovino ali več trgovin v katerih nakupuješ.</div>
@@ -1320,6 +1320,12 @@ function renderKosarica(){
     deliBtn2.textContent='📤';
     deliBtn2.title='Deli';
     deliBtn2.onclick=()=>deliAktivniListek(idx);
+    const shrBtn=document.createElement('button');
+    shrBtn.className='btn';
+    shrBtn.style.cssText='padding:4px 9px;font-size:11px;color:#0050a0;border-color:rgba(0,80,160,0.3);';
+    shrBtn.textContent='💾';
+    shrBtn.title='Shrani';
+    shrBtn.onclick=()=>shraniAktivniListek(idx);
     const delBtn2=document.createElement('button');
     delBtn2.className='btn';
     delBtn2.id='del-al-'+idx;
@@ -1329,6 +1335,7 @@ function renderKosarica(){
     hdr.appendChild(alChk);
     hdr.appendChild(titleDiv);
     hdr.appendChild(deliBtn2);
+    hdr.appendChild(shrBtn);
     hdr.appendChild(delBtn2);
     card.appendChild(hdr);
 
